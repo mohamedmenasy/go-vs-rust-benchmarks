@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["common", "concurrency", "cpu", "http-actix", "http-axum", "http-common", "io", "json", "memory", "selftest", "strings"]
+members = ["collections", "common", "concurrency", "cpu", "http-actix", "http-axum", "http-common", "io", "json", "memory", "selftest", "strings"]
 
 [workspace.package]
 version = "0.1.0"
@@ -21,6 +21,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.11"
 regex = "1.13"
+foldhash = "0.2"
 
 # The stock `cargo build --release` settings, written out explicitly so the
 # configuration under test is visible and does not silently change with a

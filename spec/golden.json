@@ -759,5 +759,27 @@
    "len": 65518,
    "fnv1a64": "36ee5a79212da573"
   }
+ },
+ "collections": {
+  "n": 1000,
+  "vec_push": "2fcd1a843672d93e",
+  "vec_random_read": "b30ebb51a8174dfd",
+  "map_insert": {
+   "run": "00000000000003e8",
+   "check": "81eda1eacc21f6f3"
+  },
+  "map_lookup": "0001f4000003b086",
+  "map_string": {
+   "fixture": "spec/fixtures/corpus-64KiB.txt",
+   "run": "000000000000029e",
+   "check": "cf2163261a99f34f"
+  },
+  "set_ops": "00012d0030d00305",
+  "queue": "000000000016dd84",
+  "priority_queue": "5566c2139b5e9d18",
+  "sort_structs": {
+   "run": "00000000000002d5",
+   "check": "372aedf236d464ce"
+  }
  }
 }

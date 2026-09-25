@@ -1168,3 +1168,187 @@ sizes = [
   { label = "100k", records = 100_000, profiles = ["quick"] },
   { label = "1M", records = 1_000_000, profiles = ["standard", "full"] },
 ]
+
+# ===========================================================================
+# 8. Collections (single core; default hashers in the baseline)
+# ===========================================================================
+
+[[workload]]
+id = "coll.vec-push"
+category = "collections"
+bin = "collections"
+impl = "vec-push"
+cores = "single"
+desc = "Append N u64 to an empty slice/Vec with no capacity hint (Go append growth policy vs Vec doubling), then sum."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.vec-random-read"
+category = "collections"
+bin = "collections"
+impl = "vec-random-read"
+cores = "single"
+desc = "N reads at precomputed random indices of an N-element array (lookup-heavy, cache-miss bound for large N; bounds-checked in both)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.map-insert"
+category = "collections"
+bin = "collections"
+impl = "map-insert"
+cores = "single"
+desc = "Insert N random u64 keys into a fresh map with no size hint (insertion-heavy): Go map (Swiss table, AES hash) vs Rust std HashMap (hashbrown, SipHash-1-3)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.map-lookup"
+category = "collections"
+bin = "collections"
+impl = "map-lookup"
+cores = "single"
+desc = "N lookups (50% hits, 50% misses) in a prebuilt N-entry map (lookup-heavy)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.set-ops"
+category = "collections"
+bin = "collections"
+impl = "set-ops"
+cores = "single"
+desc = "Build two sets of N random draws from a universe of 2N and count their intersection (map[uint64]struct{} vs HashSet<u64>)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.queue"
+category = "collections"
+bin = "collections"
+impl = "queue"
+cores = "single"
+desc = "Stream N items through a FIFO with a 1024-item window: Go slice-as-queue idiom (append + reslice) vs Rust VecDeque."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.priority-queue"
+category = "collections"
+bin = "collections"
+impl = "priority-queue"
+cores = "single"
+desc = "Push N random u64 into a min-heap then pop all (container/heap with heap.Interface vs BinaryHeap<Reverse<u64>>)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.sort-structs"
+category = "collections"
+bin = "collections"
+impl = "sort-structs"
+cores = "single"
+desc = "Sort N 32-byte records by a composite (dup-heavy, unique) key with a comparison closure (slices.SortFunc vs sort_unstable_by)."
+sizes = [
+  { label = "10k", n = 10000, profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "coll.map-string"
+category = "collections"
+bin = "collections"
+impl = "map-string"
+cores = "single"
+desc = "Word-frequency count over the first N corpus tokens in a string-keyed map (keys are views into the corpus in both languages)."
+sizes = [
+  { label = "10k", n = 10000, input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100k", n = 100000, input = "text/corpus-10MiB.txt", profiles = ["standard", "full"] },
+  { label = "1M", n = 1000000, input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "10M", n = 10000000, input = "text/corpus-100MiB.txt", profiles = ["full"] },
+]
+
+# --- tuned: Rust maps with the foldhash hasher instead of SipHash-1-3 (Go unchanged) ---
+
+[[workload]]
+id = "coll.map-insert.foldhash"
+category = "collections"
+bin = "collections"
+impl = { go = "map-insert", rust = "map-insert-foldhash" }
+track = "tuned"
+variant_of = "coll.map-insert"
+cores = "single"
+desc = "coll.map-insert with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged."
+sizes = [
+  { label = "1M", n = 1_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "coll.map-lookup.foldhash"
+category = "collections"
+bin = "collections"
+impl = { go = "map-lookup", rust = "map-lookup-foldhash" }
+track = "tuned"
+variant_of = "coll.map-lookup"
+cores = "single"
+desc = "coll.map-lookup with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged."
+sizes = [
+  { label = "1M", n = 1_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "coll.set-ops.foldhash"
+category = "collections"
+bin = "collections"
+impl = { go = "set-ops", rust = "set-ops-foldhash" }
+track = "tuned"
+variant_of = "coll.set-ops"
+cores = "single"
+desc = "coll.set-ops with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged."
+sizes = [
+  { label = "1M", n = 1_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "coll.map-string.foldhash"
+category = "collections"
+bin = "collections"
+impl = { go = "map-string", rust = "map-string-foldhash" }
+track = "tuned"
+variant_of = "coll.map-string"
+cores = "single"
+desc = "coll.map-string with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged."
+sizes = [
+  { label = "1M", n = 1_000_000, input = "text/corpus-10MiB.txt", profiles = ["standard", "full"] },
+]

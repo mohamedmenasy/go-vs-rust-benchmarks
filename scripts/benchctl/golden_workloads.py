@@ -604,6 +604,83 @@ def strings_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- collections
+
+def _stream(seed: int, n: int) -> list[int]:
+    g = R.SplitMix64(seed)
+    return [g.next() for _ in range(n)]
+
+
+def collections_section(n: int = 1000) -> dict:
+    h = R.hexu64
+    M = R.MASK64
+    out: dict = {"n": n}
+    vals = _stream(11, n)
+    out["vec_push"] = h((sum(vals) & M) ^ n)
+    data = _stream(12, n)
+    g = R.SplitMix64(13)
+    idx = [g.below(n) for _ in range(n)]
+    out["vec_random_read"] = h(sum(data[i] for i in idx) & M)
+    keys = _stream(14, n)
+    m = {}
+    for i, k in enumerate(keys):
+        m[k] = i
+    u = R.Unordered()
+    for k, v in m.items():
+        u.add(R.mix64(k) ^ v)
+    out["map_insert"] = {"run": h(len(m)), "check": h(u.sum())}
+    g = R.SplitMix64(15)
+    probes = [keys[g.below(n)] if i % 2 == 0 else g.next() for i in range(n)]
+    hits = s = 0
+    for k in probes:
+        if k in m:
+            hits += 1
+            s += m[k]
+    out["map_lookup"] = h(((hits << 40) ^ (s & M)) & M)
+    text = (FIXTURES / "corpus-64KiB.txt").read_text()
+    tokens = text.split()[:n]
+    freq: dict[str, int] = {}
+    for t in tokens:
+        freq[t] = freq.get(t, 0) + 1
+    u = R.Unordered()
+    for k, v in freq.items():
+        u.add(R.fnv1a64(k.encode()) ^ R.mix64(v))
+    out["map_string"] = {"fixture": "spec/fixtures/corpus-64KiB.txt", "run": h(len(freq)), "check": h(u.sum())}
+
+    def draw(seed):
+        gg = R.SplitMix64(seed)
+        return [gg.below(2 * n) for _ in range(n)]
+
+    sa, sb = set(draw(16)), set(draw(17))
+    out["set_ops"] = h(((len(sa & sb) << 40) ^ (len(sa) << 20) ^ len(sb)) & M)
+    q, qs = [], 0
+    for i in range(n):
+        q.append(i)
+        if len(q) > 1024:
+            qs += q.pop(0)
+    qs += sum(x * 3 for x in q)
+    out["queue"] = h(qs & M)
+    d = R.Digest()
+    for v in sorted(_stream(18, n)):
+        d.add(v)
+    out["priority_queue"] = h(d.sum())
+    g = R.SplitMix64(19)
+    kmax = max(n // 4, 1)
+    recs = []
+    for i in range(n):
+        a = g.below(kmax)
+        g.next()  # field c
+        recs.append((a, i))
+    recs.sort()
+    d = R.Digest()
+    for a, b in recs:
+        d.add(a)
+        d.add(b)
+    out["sort_structs"] = {"run": h(recs[0][1] ^ recs[n // 2][1] ^ recs[n - 1][1]), "check": h(d.sum())}
+    return out
+
+
 def sections() -> dict:
     return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section(),
-            "concurrency": concurrency_section(), "io": io_section(), "strings": strings_section()}
+            "concurrency": concurrency_section(), "io": io_section(), "strings": strings_section(),
+            "collections": collections_section()}

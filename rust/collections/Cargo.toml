@@ -1,0 +1,18 @@
+[package]
+name = "bench-collections"
+description = "Standard collections (mirror of go/collections)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "collections"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true
+foldhash.workspace = true

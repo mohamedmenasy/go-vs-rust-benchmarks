@@ -1061,3 +1061,187 @@ Format records 'id=%d name=%s score=%.2f active=%t' into one growing string (fmt
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/strings run format --param records=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/strings run format --param records=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 8. Collections
+
+### `coll.vec-push`
+
+Append N u64 to an empty slice/Vec with no capacity hint (Go append growth policy vs Vec doubling), then sum.
+
+- **Implementations:** go: `vec-push` in `go/collections/`, rust: `vec-push` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run vec-push --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run vec-push --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.vec-random-read`
+
+N reads at precomputed random indices of an N-element array (lookup-heavy, cache-miss bound for large N; bounds-checked in both).
+
+- **Implementations:** go: `vec-random-read` in `go/collections/`, rust: `vec-random-read` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run vec-random-read --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run vec-random-read --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-insert`
+
+Insert N random u64 keys into a fresh map with no size hint (insertion-heavy): Go map (Swiss table, AES hash) vs Rust std HashMap (hashbrown, SipHash-1-3).
+
+- **Implementations:** go: `map-insert` in `go/collections/`, rust: `map-insert` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-insert --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-insert --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-lookup`
+
+N lookups (50% hits, 50% misses) in a prebuilt N-entry map (lookup-heavy).
+
+- **Implementations:** go: `map-lookup` in `go/collections/`, rust: `map-lookup` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-lookup --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-lookup --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.set-ops`
+
+Build two sets of N random draws from a universe of 2N and count their intersection (map[uint64]struct{} vs HashSet<u64>).
+
+- **Implementations:** go: `set-ops` in `go/collections/`, rust: `set-ops` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run set-ops --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run set-ops --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.queue`
+
+Stream N items through a FIFO with a 1024-item window: Go slice-as-queue idiom (append + reslice) vs Rust VecDeque.
+
+- **Implementations:** go: `queue` in `go/collections/`, rust: `queue` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run queue --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run queue --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.priority-queue`
+
+Push N random u64 into a min-heap then pop all (container/heap with heap.Interface vs BinaryHeap<Reverse<u64>>).
+
+- **Implementations:** go: `priority-queue` in `go/collections/`, rust: `priority-queue` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run priority-queue --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run priority-queue --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.sort-structs`
+
+Sort N 32-byte records by a composite (dup-heavy, unique) key with a comparison closure (slices.SortFunc vs sort_unstable_by).
+
+- **Implementations:** go: `sort-structs` in `go/collections/`, rust: `sort-structs` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full); `100k` (standard/full); `1M` (quick/standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run sort-structs --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run sort-structs --param n=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-string`
+
+Word-frequency count over the first N corpus tokens in a string-keyed map (keys are views into the corpus in both languages).
+
+- **Implementations:** go: `map-string` in `go/collections/`, rust: `map-string` in `rust/collections/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10k` (quick/standard/full) input `text/corpus-10MiB.txt`; `100k` (standard/full) input `text/corpus-10MiB.txt`; `1M` (quick/standard/full) input `text/corpus-10MiB.txt`; `10M` (full) input `text/corpus-100MiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-string --param n=10000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-string --param n=10000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-insert.foldhash`
+
+coll.map-insert with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged.
+
+- **Implementations:** go: `map-insert` in `go/collections/`, rust: `map-insert-foldhash` in `rust/collections/`
+- **Track:** `tuned` (variant of `coll.map-insert`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-insert --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-insert-foldhash --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-lookup.foldhash`
+
+coll.map-lookup with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged.
+
+- **Implementations:** go: `map-lookup` in `go/collections/`, rust: `map-lookup-foldhash` in `rust/collections/`
+- **Track:** `tuned` (variant of `coll.map-lookup`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-lookup --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-lookup-foldhash --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.set-ops.foldhash`
+
+coll.set-ops with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged.
+
+- **Implementations:** go: `set-ops` in `go/collections/`, rust: `set-ops-foldhash` in `rust/collections/`
+- **Track:** `tuned` (variant of `coll.set-ops`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run set-ops --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run set-ops-foldhash --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `coll.map-string.foldhash`
+
+coll.map-string with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptographic hasher) instead of the default SipHash-1-3; Go map unchanged.
+
+- **Implementations:** go: `map-string` in `go/collections/`, rust: `map-string-foldhash` in `rust/collections/`
+- **Track:** `tuned` (variant of `coll.map-string`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1M` (standard/full) input `text/corpus-10MiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/collections run map-string --param n=1000000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/collections run map-string-foldhash --param n=1000000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`

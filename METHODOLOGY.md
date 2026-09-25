@@ -684,6 +684,24 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
   tuned variant.
 - **Digests:** hash-map results are digested independently of iteration
   order.
+- **Maps.** Both maps are Swiss tables: Go's built-in map since Go 1.24, and
+  Rust's `std::collections::HashMap` (hashbrown). With identical table
+  designs, the default *hash functions* are the main baseline difference:
+  - Go: AES-NI hashing, seeded per map;
+  - Rust: SipHash-1-3, seeded per `RandomState`, which resists hash
+    flooding.
+
+  The `*.foldhash` variants (tuned) give Rust foldhash 0.2. Go maps cannot
+  take a custom hasher.
+- **Queue.** Go has no standard-library deque. The baseline therefore uses
+  the common slice idiom (`append` plus `q = q[1:]`) against Rust's
+  `VecDeque` ring buffer.
+- **Priority queue.** Go's `container/heap` works through `heap.Interface`
+  (dynamic dispatch and boxing to `any`). Rust's `BinaryHeap<Reverse<u64>>`
+  is monomorphized. This is each ecosystem's standard tool.
+- **Sizes.** Workloads run at 10k, 100k and 1M elements (10M in the full
+  profile). Inputs come from fixed-seed SplitMix64 streams and are
+  generated in untimed setup.
 
 ### 13.9 Startup
 
