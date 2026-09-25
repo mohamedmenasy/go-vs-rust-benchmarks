@@ -1,0 +1,9 @@
+{
+ "connections": 100,
+ "median_rps": {
+  "go": 51334.09922087163,
+  "rust": 78167.59695255013
+ },
+ "base_rps": 51334.09922087163,
+ "rule": "rates are fractions of the slower server's median closed-loop throughput"
+}
