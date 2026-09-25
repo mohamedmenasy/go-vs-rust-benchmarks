@@ -1,0 +1,20 @@
+[package]
+name = "bench-json"
+description = "serde_json benchmarks (mirror of go/json)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "json"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sonic-rs = "0.5.10"

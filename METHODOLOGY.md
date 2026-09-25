@@ -474,6 +474,35 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 - **Timing:** op mode for small payloads.
 - **Correctness:** encoded output must be byte-identical to the input
   document.
+- **Libraries.**
+  - Go: `encoding/json` (the v1 API). **Go 1.27 enables the `jsonv2`
+    experiment by default**, so this API runs on the new `encoding/json/v2`
+    engine. The `json.*.go-legacyjson` variants rebuild Go with
+    `GOEXPERIMENT=nojsonv2`, the previous implementation.
+  - Rust: `serde` 1.0 + `serde_json` 1.0.151 with `#[derive]` types.
+  - Optimized-library track (`json.*-fast`, tuned): Go
+    `github.com/goccy/go-json` v0.10.6 vs Rust `sonic-rs` 0.5.10. Both are
+    drop-in replacements for the standard APIs.
+- **What is timed.** Each operation decodes (or encodes) one whole document,
+  timed individually. A decoded value replaces the previous one, so Rust's
+  drop and Go's garbage are part of the steady-state cost.
+- **Correctness check** (untimed, first and last operation):
+  - The typed decode is re-encoded and must reproduce the input file byte
+    for byte. Every field is then digested; the Python reference produces
+    the same digest.
+  - The encode output must equal the input file.
+  - The dynamic decode is digested order-independently, because Go maps
+    iterate in random order while serde_json maps are sorted. Numbers are
+    compared as float64, because Go's `any` decodes every number to
+    `float64` while `serde_json::Value` keeps integers as integers.
+- **Representations differ by design.**
+  - Go's `any` produces `map[string]any` (a hash map) and `float64`
+    numbers.
+  - `serde_json::Value` uses a `BTreeMap` (sorted) and integer-preserving
+    `Number`.
+
+  These are each ecosystem's default dynamic representation, and the results
+  are labelled as such.
 
 ### 13.4 HTTP
 

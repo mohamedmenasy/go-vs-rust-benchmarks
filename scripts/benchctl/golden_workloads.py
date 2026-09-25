@@ -329,5 +329,121 @@ def memory_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- JSON
+
+def _dstr(d: R.Digest, s: str) -> None:
+    b = s.encode()
+    d.add(R.fnv1a64(b))
+    d.add(len(b))
+
+
+def _dbool(d: R.Digest, v: bool) -> None:
+    d.add(1 if v else 0)
+
+
+def _dopt(d: R.Digest, s) -> None:
+    if s is None:
+        d.add(0)
+    else:
+        d.add(1)
+        _dstr(d, s)
+
+
+def _dtags(d: R.Digest, tags) -> None:
+    d.add(len(tags))
+    for t in tags:
+        _dstr(d, t)
+
+
+def json_typed_digest_object(doc: dict) -> int:
+    d = R.Digest()
+    _dstr(d, doc["request_id"]); _dstr(d, doc["status"])
+    d.add(doc["page"]); d.add(doc["per_page"]); d.add(doc["total"])
+    _dstr(d, doc["generated_at"])
+    d.add(len(doc["items"]))
+    for it in doc["items"]:
+        d.add(it["id"]); _dstr(d, it["sku"]); _dstr(d, it["name"]); _dstr(d, it["description"])
+        d.add(f64bits(it["price"])); d.add(it["quantity"]); _dbool(d, it["in_stock"]); d.add(f64bits(it["rating"]))
+        _dtags(d, it["tags"])
+        dim = it["dimensions"]
+        d.add(f64bits(dim["width"])); d.add(f64bits(dim["height"])); d.add(f64bits(dim["depth"]))
+        _dopt(d, it["supplier"])
+    m = doc["meta"]
+    _dstr(d, m["region"]); _dbool(d, m["cache_hit"]); d.add(f64bits(m["latency_ms"])); _dtags(d, m["tags"])
+    return d.sum()
+
+
+def json_typed_digest_array(users: list) -> int:
+    d = R.Digest()
+    d.add(len(users))
+    for u in users:
+        d.add(u["id"]); _dstr(d, u["username"]); _dstr(d, u["email"]); d.add(u["age"])
+        d.add(f64bits(u["score"])); _dbool(d, u["active"]); _dtags(d, u["roles"])
+        a = u["address"]
+        _dstr(d, a["street"]); _dstr(d, a["city"]); _dstr(d, a["zip"])
+        d.add(f64bits(a["geo"]["lat"])); d.add(f64bits(a["geo"]["lng"]))
+        _dstr(d, u["created_at"]); _dopt(d, u["bio"])
+    return d.sum()
+
+
+# Order-independent structural digest of a dynamically decoded document
+# (Go map iteration order is random; serde_json::Value maps are sorted).
+TAG_OBJ, TAG_ARR, TAG_KEY, TAG_STR, TAG_NUM, TAG_TRUE, TAG_FALSE, TAG_NULL = (k << 56 for k in range(1, 9))
+
+
+def json_dynamic_digest(v) -> int:
+    u = R.Unordered()
+
+    def walk(x) -> None:
+        if isinstance(x, dict):
+            u.add(TAG_OBJ ^ len(x))
+            for k, val in x.items():
+                u.add(TAG_KEY ^ R.fnv1a64(k.encode()))
+                walk(val)
+        elif isinstance(x, list):
+            u.add(TAG_ARR ^ len(x))
+            for val in x:
+                walk(val)
+        elif isinstance(x, str):
+            u.add(TAG_STR ^ R.fnv1a64(x.encode()))
+        elif x is True:
+            u.add(TAG_TRUE)
+        elif x is False:
+            u.add(TAG_FALSE)
+        elif x is None:
+            u.add(TAG_NULL)
+        else:  # number: compared as float64 (Go decodes all numbers to float64)
+            u.add(TAG_NUM ^ f64bits(float(x)))
+
+    walk(v)
+    return u.sum()
+
+
+def json_section() -> dict:
+    import json as _json
+
+    from . import datasets_json
+
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    obj_path = FIXTURES / "json-object-2KiB.json"
+    arr_path = FIXTURES / "json-array-20.json"
+    obj_bytes = datasets_json.make_object(2048)
+    arr_bytes = datasets_json.make_array(20)
+    for path, data in ((obj_path, obj_bytes), (arr_path, arr_bytes)):
+        if not path.exists() or path.read_bytes() != data:
+            path.write_bytes(data)
+    obj = _json.loads(obj_bytes)
+    arr = _json.loads(arr_bytes)
+    h = R.hexu64
+    return {
+        "object": {"fixture": "spec/fixtures/json-object-2KiB.json", "bytes": len(obj_bytes),
+                   "fnv1a64": h(R.fnv1a64(obj_bytes)), "items": len(obj["items"]),
+                   "typed_digest": h(json_typed_digest_object(obj)), "dynamic_digest": h(json_dynamic_digest(obj))},
+        "array": {"fixture": "spec/fixtures/json-array-20.json", "bytes": len(arr_bytes),
+                  "fnv1a64": h(R.fnv1a64(arr_bytes)), "users": len(arr),
+                  "typed_digest": h(json_typed_digest_array(arr)), "dynamic_digest": h(json_dynamic_digest(arr))},
+    }
+
+
 def sections() -> dict:
-    return {"cpu": cpu_section(), "memory": memory_section()}
+    return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section()}

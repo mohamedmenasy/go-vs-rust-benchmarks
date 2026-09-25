@@ -547,3 +547,185 @@ timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms =
 sizes = [
   { label = "500MiB", bytes = "500MiB", profiles = ["full"] },
 ]
+
+# ===========================================================================
+# 3. JSON (single core; op mode: every document timed individually)
+#    Go encoding/json (v1 API; Go 1.27 backs it with the json/v2 engine by
+#    default) vs Rust serde + serde_json. Output must be byte-identical.
+# ===========================================================================
+
+[[workload]]
+id = "json.decode"
+category = "json"
+bin = "json"
+impl = "decode"
+cores = "single"
+desc = "Typed decode (Go json.Unmarshal into structs; Rust serde_json::from_slice with #[derive(Deserialize)]). The decoded value replaces the previous one (Rust drop / Go garbage are part of the cost)."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["quick", "standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "json.encode"
+category = "json"
+bin = "json"
+impl = "encode"
+cores = "single"
+desc = "Typed encode of the decoded document (Go json.Marshal; Rust serde_json::to_vec); output must equal the input bytes."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["quick", "standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "json.decode-dynamic"
+category = "json"
+bin = "json"
+impl = "decode-dynamic"
+cores = "single"
+desc = "Untyped decode (Go `any` = map[string]any/[]any/float64; Rust serde_json::Value, sorted-map objects, integer-preserving numbers)."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["quick", "standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["quick", "standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "json.decode.go-legacyjson"
+category = "json"
+bin = "json"
+impl = "decode"
+track = "tuned"
+variant_of = "json.decode"
+flavor = { go = "legacyjson" }
+cores = "single"
+desc = "json.decode with Go built with GOEXPERIMENT=nojsonv2 (the pre-1.27 encoding/json implementation); Rust unchanged."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "json.encode.go-legacyjson"
+category = "json"
+bin = "json"
+impl = "encode"
+track = "tuned"
+variant_of = "json.encode"
+flavor = { go = "legacyjson" }
+cores = "single"
+desc = "json.encode with Go built with GOEXPERIMENT=nojsonv2 (the pre-1.27 encoding/json implementation); Rust unchanged."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.churn.go-nogreentea"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+flavor = { go = "nogreentea" }
+cores = "memory"
+desc = "mem.churn with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-boxed.go-nogreentea"
+category = "memory"
+bin = "memory"
+impl = "objects-boxed"
+track = "tuned"
+variant_of = "mem.objects-boxed"
+flavor = { go = "nogreentea" }
+cores = "memory"
+desc = "mem.objects-boxed with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.binarytrees.go-nogreentea"
+category = "memory"
+bin = "memory"
+impl = "binarytrees"
+track = "tuned"
+variant_of = "mem.binarytrees"
+flavor = { go = "nogreentea" }
+cores = "memory"
+desc = "mem.binarytrees with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "d18", depth = 18, profiles = ["standard", "full"] },
+]
+
+# --- JSON optimized-library track (tuned): goccy/go-json vs sonic-rs ---
+
+[[workload]]
+id = "json.decode-fast"
+category = "json"
+bin = "json"
+impl = "decode-fast"
+track = "tuned"
+variant_of = "json.decode"
+cores = "single"
+desc = "Typed decode with an optimized third-party library: Go github.com/goccy/go-json v0.10.6 vs Rust sonic-rs 0.5.10 (SIMD). Output must be byte-identical."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "json.encode-fast"
+category = "json"
+bin = "json"
+impl = "encode-fast"
+track = "tuned"
+variant_of = "json.encode"
+cores = "single"
+desc = "Typed encode with an optimized third-party library: Go github.com/goccy/go-json v0.10.6 vs Rust sonic-rs 0.5.10 (SIMD). Output must be byte-identical."
+sizes = [
+  { label = "obj-1KiB", input = "json/object-1KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-10KiB", input = "json/object-10KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-100KiB", input = "json/object-100KiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "obj-1MiB", input = "json/object-1MiB.json", schema = "object", profiles = ["standard", "full"] },
+  { label = "arr-1k", input = "json/array-1k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
+  { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
+]

@@ -524,3 +524,150 @@ mem.churn pinned to a single core (GOMAXPROCS=1): the GC cannot run on a spare c
 - **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.go-nogreentea`
+
+mem.churn with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged.
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **Build flavor:** go: `nogreentea`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go-nogreentea/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-boxed.go-nogreentea`
+
+mem.objects-boxed with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged.
+
+- **Implementations:** go: `objects-boxed` in `go/memory/`, rust: `objects-boxed` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.objects-boxed`)
+- **Build flavor:** go: `nogreentea`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go-nogreentea/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.binarytrees.go-nogreentea`
+
+mem.binarytrees with Go built with GOEXPERIMENT=nogreenteagc (the previous GC design); Rust unchanged.
+
+- **Implementations:** go: `binarytrees` in `go/memory/`, rust: `binarytrees` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.binarytrees`)
+- **Build flavor:** go: `nogreentea`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `d18` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go-nogreentea/memory run binarytrees --param depth=18 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run binarytrees --param depth=18 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+## 3. JSON
+
+### `json.decode`
+
+Typed decode (Go json.Unmarshal into structs; Rust serde_json::from_slice with #[derive(Deserialize)]). The decoded value replaces the previous one (Rust drop / Go garbage are part of the cost).
+
+- **Implementations:** go: `decode` in `go/json/`, rust: `decode` in `rust/json/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (quick/standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (quick/standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (quick/standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/json run decode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run decode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.encode`
+
+Typed encode of the decoded document (Go json.Marshal; Rust serde_json::to_vec); output must equal the input bytes.
+
+- **Implementations:** go: `encode` in `go/json/`, rust: `encode` in `rust/json/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (quick/standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (quick/standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (quick/standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/json run encode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run encode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.decode-dynamic`
+
+Untyped decode (Go `any` = map[string]any/[]any/float64; Rust serde_json::Value, sorted-map objects, integer-preserving numbers).
+
+- **Implementations:** go: `decode-dynamic` in `go/json/`, rust: `decode-dynamic` in `rust/json/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (quick/standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (quick/standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (quick/standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/json run decode-dynamic --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run decode-dynamic --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.decode.go-legacyjson`
+
+json.decode with Go built with GOEXPERIMENT=nojsonv2 (the pre-1.27 encoding/json implementation); Rust unchanged.
+
+- **Implementations:** go: `decode` in `go/json/`, rust: `decode` in `rust/json/`
+- **Track:** `tuned` (variant of `json.decode`)
+- **Build flavor:** go: `legacyjson`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go-legacyjson/json run decode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run decode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.encode.go-legacyjson`
+
+json.encode with Go built with GOEXPERIMENT=nojsonv2 (the pre-1.27 encoding/json implementation); Rust unchanged.
+
+- **Implementations:** go: `encode` in `go/json/`, rust: `encode` in `rust/json/`
+- **Track:** `tuned` (variant of `json.encode`)
+- **Build flavor:** go: `legacyjson`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go-legacyjson/json run encode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run encode --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.decode-fast`
+
+Typed decode with an optimized third-party library: Go github.com/goccy/go-json v0.10.6 vs Rust sonic-rs 0.5.10 (SIMD). Output must be byte-identical.
+
+- **Implementations:** go: `decode-fast` in `go/json/`, rust: `decode-fast` in `rust/json/`
+- **Track:** `tuned` (variant of `json.decode`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/json run decode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run decode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `json.encode-fast`
+
+Typed encode with an optimized third-party library: Go github.com/goccy/go-json v0.10.6 vs Rust sonic-rs 0.5.10 (SIMD). Output must be byte-identical.
+
+- **Implementations:** go: `encode-fast` in `go/json/`, rust: `encode-fast` in `rust/json/`
+- **Track:** `tuned` (variant of `json.encode`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `obj-1KiB` (standard/full) input `json/object-1KiB.json`; `obj-10KiB` (standard/full) input `json/object-10KiB.json`; `obj-100KiB` (standard/full) input `json/object-100KiB.json`; `obj-1MiB` (standard/full) input `json/object-1MiB.json`; `arr-1k` (standard/full) input `json/array-1k.json`; `arr-10k` (standard/full) input `json/array-10k.json`; `arr-100k` (standard/full) input `json/array-100k.json`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/json run encode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/json run encode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`

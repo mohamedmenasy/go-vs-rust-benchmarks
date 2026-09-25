@@ -641,5 +641,23 @@
    "run": "000000000000bdce",
    "check": "000000000000b310"
   }
+ },
+ "json": {
+  "object": {
+   "fixture": "spec/fixtures/json-object-2KiB.json",
+   "bytes": 2280,
+   "fnv1a64": "6f49cc22478facba",
+   "items": 5,
+   "typed_digest": "8fb8abf0fcd2d71b",
+   "dynamic_digest": "0ce1cff4dc8c8c15"
+  },
+  "array": {
+   "fixture": "spec/fixtures/json-array-20.json",
+   "bytes": 7231,
+   "fnv1a64": "415ab8c61db821cc",
+   "users": 20,
+   "typed_digest": "4850f1382df9e50a",
+   "dynamic_digest": "67cf293a5d5b7338"
+  }
  }
 }

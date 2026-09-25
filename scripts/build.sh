@@ -23,6 +23,21 @@ go)
 	for b in "$@"; do
 		CGO_ENABLED=0 GOAMD64=v1 go build -trimpath -buildvcs=false -o "$ROOT/bin/go/$b" "./$b"
 	done
+	# Sensitivity flavours: Go 1.27 enables the jsonv2 and greenteagc
+	# experiments by default; these builds switch them off for comparison.
+	#   flavor | GOEXPERIMENT | programs
+	go_flavors=(
+		"legacyjson|nojsonv2|json"
+		"nogreentea|nogreenteagc|memory"
+	)
+	for f in "${go_flavors[@]}"; do
+		IFS='|' read -r flavor exp progs <<<"$f"
+		for b in $progs; do
+			case " $* " in *" $b "*) ;; *) continue ;; esac
+			mkdir -p "$ROOT/bin/go-$flavor"
+			GOEXPERIMENT="$exp" CGO_ENABLED=0 GOAMD64=v1 go build -trimpath -buildvcs=false -o "$ROOT/bin/go-$flavor/$b" "./$b"
+		done
+	done
 	;;
 rust)
 	cd "$ROOT/rust"

@@ -110,7 +110,14 @@ def _go_env() -> dict:
     except ValueError:
         return {"raw": raw}
     keys = ("GOVERSION", "GOOS", "GOARCH", "GOAMD64", "CGO_ENABLED", "GOFLAGS", "GOTOOLCHAIN", "GOEXPERIMENT", "CC")
-    return {k: data.get(k) for k in keys}
+    out = {k: data.get(k) for k in keys}
+    # Experiments that are on by default in this toolchain (e.g. jsonv2,
+    # greenteagc in Go 1.27) do not appear in GOEXPERIMENT; ToolTags lists them.
+    tags = _run(["go", "list", "-f", "{{context.ToolTags}}", "runtime"], cwd=ROOT / "go", env=env)
+    out["default_experiments"] = sorted(
+        t.removeprefix("goexperiment.") for t in tags.strip("[]").split() if t.startswith("goexperiment.")
+    )
+    return out
 
 
 def _tool_versions() -> dict:
