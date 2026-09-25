@@ -41,7 +41,12 @@ fi
 
 say "Rust toolchain (pinned by rust/rust-toolchain.toml)"
 if ! command -v rustup >/dev/null; then
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+	arch="$(uname -m)-unknown-linux-gnu"
+	tmp="$(mktemp -d)"
+	curl --proto '=https' --tlsv1.2 -sSfL -o "$tmp/rustup-init" "https://static.rust-lang.org/rustup/dist/$arch/rustup-init"
+	chmod +x "$tmp/rustup-init"
+	"$tmp/rustup-init" -y --profile minimal --default-toolchain none
+	rm -rf "$tmp"
 	# shellcheck disable=SC1091
 	. "$HOME/.cargo/env"
 fi

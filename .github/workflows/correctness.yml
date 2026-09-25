@@ -1,0 +1,68 @@
+# Correctness only: unit tests (incl. shared golden values), lint, and
+# cross-language validation at quick-profile sizes. This workflow never
+# produces or publishes performance numbers (shared CI runners are unsuitable).
+name: correctness
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  correctness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      GOTOOLCHAIN: go1.27.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+
+      - name: Rust toolchain (from rust/rust-toolchain.toml)
+        working-directory: rust
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: cargo-${{ hashFiles('rust/Cargo.lock', 'rust/rust-toolchain.toml') }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: System tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends hyperfine nginx sysstat time
+          sudo systemctl stop nginx || true
+
+      - name: Python venv
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -q -r scripts/requirements.txt
+
+      - name: Build
+        run: make build
+
+      - name: Lint
+        run: make lint
+
+      - name: Unit tests (Go, Rust, Python; golden values)
+        run: make test
+
+      - name: Golden values are reproducible
+        run: scripts/bench golden --check
+
+      - name: Cross-language validation (quick sizes)
+        run: make validate PROFILE=quick

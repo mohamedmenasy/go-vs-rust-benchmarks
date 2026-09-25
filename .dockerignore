@@ -1,0 +1,10 @@
+.git
+bin/
+rust/target/
+tools/
+.venv/
+datasets/*
+!datasets/manifest.json
+scratch/
+results/
+charts/
