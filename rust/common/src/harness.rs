@@ -118,10 +118,8 @@ pub fn main(bin: &str, workloads: &[Workload]) -> ! {
     }
     match args[1].as_str() {
         "list" => {
-            let names: Vec<Value> = workloads
-                .iter()
-                .map(|w| json!({"name": w.name, "mode": w.mode.as_str()}))
-                .collect();
+            let names: Vec<Value> =
+                workloads.iter().map(|w| json!({"name": w.name, "mode": w.mode.as_str()})).collect();
             emit(&json!({"bin": bin, "lang": "rust", "workloads": names}));
             process::exit(0);
         }
@@ -184,13 +182,10 @@ fn parse_flags(args: &[String]) -> (Params, Options) {
                 return v.clone();
             }
             i += 1;
-            args.get(i)
-                .cloned()
-                .unwrap_or_else(|| fail(&format!("flag {flag} needs a value")))
+            args.get(i).cloned().unwrap_or_else(|| fail(&format!("flag {flag} needs a value")))
         };
         let num = |s: String| -> u64 {
-            s.parse()
-                .unwrap_or_else(|_| fail(&format!("flag {flag}: bad number {s:?}")))
+            s.parse().unwrap_or_else(|_| fail(&format!("flag {flag}: bad number {s:?}")))
         };
         match flag.trim_start_matches('-') {
             "param" => {
@@ -245,10 +240,7 @@ impl DigestState {
             return Ok(());
         }
         if x != self.digest {
-            return Err(format!(
-                "non-deterministic result digest: {x:016x} != {:016x}",
-                self.digest
-            ));
+            return Err(format!("non-deterministic result digest: {x:016x} != {:016x}", self.digest));
         }
         Ok(())
     }
@@ -260,10 +252,7 @@ struct Snap {
 }
 
 fn snapshot() -> Snap {
-    Snap {
-        ru: procfs::rusage(),
-        al: alloc::snapshot(),
-    }
+    Snap { ru: procfs::rusage(), al: alloc::snapshot() }
 }
 
 fn build_info() -> Value {
@@ -287,7 +276,8 @@ fn execute(bin: &str, wl: &Workload, params: &Params, o: &Options) -> Result<Val
     let mut ds = DigestState::default();
     let mut check_first: Option<u64> = None;
     let mut warm: Vec<u64> = Vec::new();
-    let mut samples: Vec<u64> = Vec::new();
+    // Pre-sized so harness bookkeeping does not allocate inside the measured window.
+    let mut samples: Vec<u64> = Vec::with_capacity(4096);
     let mut ops_per_sample: u64 = 1;
     let mut hist: Option<Histogram> = None;
     let max_phase = o.max_ms as u128 * 1_000_000;
@@ -321,44 +311,39 @@ fn execute(bin: &str, wl: &Workload, params: &Params, o: &Options) -> Result<Val
                 sum += dt;
                 i += 1;
             }
+            phase("measure_start");
             snap0 = snapshot();
             alloc::reset_peak();
-            phase("measure_start");
             let (mut sum, start, mut i) = (0u64, Instant::now(), 0u64);
-            while (i < o.iters || sum < min_ns)
-                && i < o.max_iters
-                && start.elapsed().as_nanos() < max_phase
-            {
+            while (i < o.iters || sum < min_ns) && i < o.max_iters && start.elapsed().as_nanos() < max_phase {
                 let dt = one(&mut inst)?;
                 samples.push(dt);
                 sum += dt;
                 i += 1;
             }
-            phase("measure_end");
             snap1 = snapshot();
+            phase("measure_end");
         }
         Mode::Op => {
-            let mut batch = |inst: &mut Box<dyn Instance>,
-                             n: u64,
-                             h: Option<&mut Histogram>|
-             -> Result<u64, String> {
-                let mut s = 0u64;
-                let mut h = h;
-                for _ in 0..n {
-                    let t0 = Instant::now();
-                    let d = inst.run();
-                    let dt = t0.elapsed().as_nanos() as u64;
-                    ds.observe(d)?;
-                    if has_check && check_first.is_none() {
-                        check_first = Some(inst.check());
+            let mut batch =
+                |inst: &mut Box<dyn Instance>, n: u64, h: Option<&mut Histogram>| -> Result<u64, String> {
+                    let mut s = 0u64;
+                    let mut h = h;
+                    for _ in 0..n {
+                        let t0 = Instant::now();
+                        let d = inst.run();
+                        let dt = t0.elapsed().as_nanos() as u64;
+                        ds.observe(d)?;
+                        if has_check && check_first.is_none() {
+                            check_first = Some(inst.check());
+                        }
+                        s += dt;
+                        if let Some(h) = h.as_deref_mut() {
+                            h.record(dt);
+                        }
                     }
-                    s += dt;
-                    if let Some(h) = h.as_deref_mut() {
-                        h.record(dt);
-                    }
-                }
-                Ok(s)
-            };
+                    Ok(s)
+                };
             // Calibrate the batch size so one batch lasts about batch_min_ms.
             let (mut cal_ns, mut cal_ops) = (0u64, 0u64);
             let cal_start = Instant::now();
@@ -382,21 +367,18 @@ fn execute(bin: &str, wl: &Workload, params: &Params, o: &Options) -> Result<Val
                 i += 1;
             }
             let mut h = Histogram::new();
+            phase("measure_start");
             snap0 = snapshot();
             alloc::reset_peak();
-            phase("measure_start");
             let (mut sum, start, mut i) = (0u64, Instant::now(), 0u64);
-            while (i < o.iters || sum < min_ns)
-                && i < o.max_iters
-                && start.elapsed().as_nanos() < max_phase
-            {
+            while (i < o.iters || sum < min_ns) && i < o.max_iters && start.elapsed().as_nanos() < max_phase {
                 let dt = batch(&mut inst, ops_per_sample, Some(&mut h))?;
                 samples.push(dt);
                 sum += dt;
                 i += 1;
             }
-            phase("measure_end");
             snap1 = snapshot();
+            phase("measure_end");
             hist = Some(h);
         }
     }
@@ -407,9 +389,7 @@ fn execute(bin: &str, wl: &Workload, params: &Params, o: &Options) -> Result<Val
         if let Some(first) = check_first
             && first != last
         {
-            return Err(format!(
-                "post-run check digest changed: {last:016x} != {first:016x}"
-            ));
+            return Err(format!("post-run check digest changed: {last:016x} != {first:016x}"));
         }
         checksum = format!("{checksum}:{}", hex(last));
     }

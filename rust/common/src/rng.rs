@@ -37,6 +37,19 @@ impl SplitMix64 {
     }
 }
 
+/// `n` bytes: the SplitMix64(seed) stream as little-endian 64-bit words,
+/// truncated to `n` (identical to Go's common.RandomBytes).
+pub fn random_bytes(seed: u64, n: usize) -> Vec<u8> {
+    let mut out = vec![0u8; n.div_ceil(8) * 8];
+    let mut r = SplitMix64::new(seed);
+    let (words, _) = out.as_chunks_mut::<8>();
+    for w in words {
+        *w = r.next_u64().to_le_bytes();
+    }
+    out.truncate(n);
+    out
+}
+
 /// The SplitMix64 output finalizer; a bijection on u64.
 #[inline]
 pub fn mix64(mut z: u64) -> u64 {

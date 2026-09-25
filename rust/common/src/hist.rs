@@ -35,13 +35,7 @@ impl Default for Histogram {
 
 impl Histogram {
     pub fn new() -> Self {
-        Histogram {
-            counts: vec![0; BUCKETS],
-            count: 0,
-            sum: 0,
-            min: 0,
-            max: 0,
-        }
+        Histogram { counts: vec![0; BUCKETS], count: 0, sum: 0, min: 0, max: 0 }
     }
 
     #[inline]
@@ -58,13 +52,8 @@ impl Histogram {
     }
 
     pub fn export(&self) -> Value {
-        let buckets: Vec<[u64; 2]> = self
-            .counts
-            .iter()
-            .enumerate()
-            .filter(|(_, c)| **c != 0)
-            .map(|(i, c)| [i as u64, *c])
-            .collect();
+        let buckets: Vec<[u64; 2]> =
+            self.counts.iter().enumerate().filter(|(_, c)| **c != 0).map(|(i, c)| [i as u64, *c]).collect();
         json!({
             "scheme": "loglin6",
             "count": self.count,

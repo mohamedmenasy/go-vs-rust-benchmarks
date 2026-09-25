@@ -12,7 +12,8 @@ pub mod rng;
 pub use digest::{Digest, Unordered, fnv1a64, hex};
 pub use harness::{Instance, Mode, Work, Workload, main};
 pub use params::Params;
-pub use rng::{SplitMix64, mix64};
+pub use rng::{SplitMix64, mix64, random_bytes};
+pub use serde_json;
 
 use std::path::PathBuf;
 
@@ -33,8 +34,7 @@ pub fn repo_root() -> PathBuf {
 /// Parse spec/golden.json.
 pub fn load_golden() -> serde_json::Value {
     let path = repo_root().join("spec").join("golden.json");
-    let text =
-        std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()));
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {}: {e}", path.display()));
     serde_json::from_str(&text).expect("parse golden.json")
 }
 

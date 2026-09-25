@@ -5,11 +5,7 @@ use std::fs;
 fn status_field(text: &str, key: &str) -> i64 {
     for line in text.lines() {
         if let Some(rest) = line.strip_prefix(key) {
-            return rest
-                .split_whitespace()
-                .next()
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(-1);
+            return rest.split_whitespace().next().and_then(|v| v.parse().ok()).unwrap_or(-1);
         }
     }
     -1

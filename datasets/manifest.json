@@ -5,6 +5,10 @@
    "bytes": 10485760,
    "sha256": "d932b542655fa08a05048935fc9a539b43e3af757c2dce857367a386458f0f39"
   },
+  "csv/requests-100MiB.csv": {
+   "bytes": 104857581,
+   "sha256": "60f2e18aee8eec5e211757a477847eedc9acda8162d9e5fa1e592081566fb9c4"
+  },
   "csv/requests-10MiB.csv": {
    "bytes": 10485720,
    "sha256": "dc01d6d617040b86e99e193ff6d058ab15e08bd3e3eb96c15de5a725c09aa850"

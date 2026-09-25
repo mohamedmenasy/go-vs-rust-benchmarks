@@ -42,3 +42,289 @@ Harness self-test for per-operation timing (histograms).
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/selftest run opspin --param n=1000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/selftest run opspin --param n=1000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 1. CPU-bound workloads
+
+### `cpu.fib`
+
+Naive doubly-recursive Fibonacci fib(n) on u64: function-call overhead, stack frames, branch prediction.
+
+*Notes:* LLVM may turn one of the two recursive calls into a loop (accumulator transformation); the Go compiler does not. Logical work (the call tree) is identical.
+
+- **Implementations:** go: `fib` in `go/cpu/`, rust: `fib` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `n30` (quick); `n35` (standard/full); `n38` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run fib --param n=35 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run fib --param n=35 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sieve`
+
+Sieve of Eratosthenes over a byte-per-number array (allocated in setup, cleared in the timed run); returns prime count and sum.
+
+- **Implementations:** go: `sieve` in `go/cpu/`, rust: `sieve` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1e6` (quick); `1e7` (standard/full); `1e8` (standard/full); `1e9` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sieve --param n=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run sieve --param n=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sha256-lib`
+
+SHA-256 of an in-memory buffer with each ecosystem's standard choice: Go crypto/sha256 vs Rust sha2 0.11.
+
+*Notes:* Ecosystem comparison. Go uses hand-written assembly (SHA-NI if present, else AVX2). sha2 uses SHA-NI intrinsics if present, else portable Rust. The reference host has no SHA-NI, so this is Go AVX2 assembly vs portable Rust.
+
+- **Implementations:** go: `sha256-lib` in `go/cpu/`, rust: `sha256-lib` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `16MiB` (quick); `64MiB` (standard/full); `256MiB` (standard/full); `1GiB` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sha256-lib --param bytes=67108864 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run sha256-lib --param bytes=67108864 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sha256-portable`
+
+SHA-256 with an identical, straightforward FIPS 180-4 implementation in both languages: compares the compilers on the same source-level algorithm.
+
+- **Implementations:** go: `sha256-portable` in `go/cpu/`, rust: `sha256-portable` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `16MiB` (quick); `64MiB` (standard/full); `256MiB` (standard/full); `1GiB` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sha256-portable --param bytes=67108864 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run sha256-portable --param bytes=67108864 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sort-u64`
+
+Standard-library unstable sort of random u64 (Go slices.Sort pdqsort vs Rust sort_unstable ipnsort). Re-copying the input is untimed.
+
+- **Implementations:** go: `sort-u64` in `go/cpu/`, rust: `sort-u64` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `100k` (quick); `1M` (standard/full); `10M` (standard/full); `50M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sort-u64 --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run sort-u64 --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sort-stable`
+
+Standard-library stable sort of 16-byte records by a key with ~4 duplicates per key (Go slices.SortStableFunc vs Rust sort_by_key).
+
+*Notes:* Different algorithms by design of each standard library: Go uses insertion-sort blocks + in-place SymMerge (no allocation, O(n log^2 n)); Rust uses driftsort with an O(n) auxiliary buffer.
+
+- **Implementations:** go: `sort-stable` in `go/cpu/`, rust: `sort-stable` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `100k` (quick); `1M` (standard/full); `10M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sort-stable --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run sort-stable --param n=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.matmul`
+
+Naive i-k-j float64 matrix multiplication, flat indexing c[i*n+j] += a[i*n+k]*b[k*n+j] (bounds-checked in both languages).
+
+- **Implementations:** go: `matmul` in `go/cpu/`, rust: `matmul` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `n128` (quick); `n256` (standard/full); `n512` (standard/full); `n1024` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run matmul --param n=256 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run matmul --param n=256 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.matmul-rows`
+
+Same arithmetic as cpu.matmul written with row sub-slices (Go, with a bounds-check-elimination hint) and chunk/zip iterators (Rust), as each language's idiom.
+
+*Notes:* Rust's iterator form lets LLVM drop bounds checks and auto-vectorize (SSE2); Go's compiler drops bounds checks but does not auto-vectorize.
+
+- **Implementations:** go: `matmul-rows` in `go/cpu/`, rust: `matmul-rows` in `rust/cpu/`
+- **Track:** `idiomatic` (variant of `cpu.matmul`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `n128` (quick); `n512` (standard/full); `n1024` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run matmul-rows --param n=512 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run matmul-rows --param n=512 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.nbody`
+
+Benchmarks Game n-body (5 bodies, dt=0.01), simple scalar formulation; returns energy before/after (bit-identical across languages).
+
+- **Implementations:** go: `nbody` in `go/cpu/`, rust: `nbody` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1M` (quick); `10M` (standard/full); `50M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run nbody --param steps=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run nbody --param steps=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.mandelbrot`
+
+Escape-time Mandelbrot (50 iterations) on a w x w grid, one bit per pixel; scalar float64.
+
+- **Implementations:** go: `mandelbrot` in `go/cpu/`, rust: `mandelbrot` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `w1000` (quick); `w4000` (standard/full); `w16000` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run mandelbrot --param w=4000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run mandelbrot --param w=4000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.csvparse`
+
+Parse an in-memory request-log CSV (line/field scanning, integer and decimal parsing) and aggregate per endpoint in a string-keyed hash map.
+
+*Notes:* Baseline hash maps use each language's default hasher (Go AES-based, Rust SipHash-1-3). Input is read and (Rust) UTF-8-validated during untimed setup.
+
+- **Implementations:** go: `csvparse` in `go/cpu/`, rust: `csvparse` in `rust/cpu/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `csv/requests-10MiB.csv`; `100MiB` (standard/full) input `csv/requests-100MiB.csv`; `1GiB` (full) input `csv/requests-1GiB.csv`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run csvparse --param input=datasets/csv/requests-10MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/cpu run csvparse --param input=datasets/csv/requests-10MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.fib.rust-lto`
+
+cpu.fib with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `fib` in `go/cpu/`, rust: `fib` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.fib`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `n35` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run fib --param n=35 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run fib --param n=35 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sieve.rust-lto`
+
+cpu.sieve with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `sieve` in `go/cpu/`, rust: `sieve` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.sieve`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1e8` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sieve --param n=100000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run sieve --param n=100000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sha256-portable.rust-lto`
+
+cpu.sha256-portable with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `sha256-portable` in `go/cpu/`, rust: `sha256-portable` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.sha256-portable`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `256MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sha256-portable --param bytes=268435456 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run sha256-portable --param bytes=268435456 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.sort-u64.rust-lto`
+
+cpu.sort-u64 with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `sort-u64` in `go/cpu/`, rust: `sort-u64` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.sort-u64`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run sort-u64 --param n=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run sort-u64 --param n=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.matmul.rust-lto`
+
+cpu.matmul with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `matmul` in `go/cpu/`, rust: `matmul` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.matmul`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `n512` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run matmul --param n=512 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run matmul --param n=512 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.nbody.rust-lto`
+
+cpu.nbody with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `nbody` in `go/cpu/`, rust: `nbody` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.nbody`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run nbody --param steps=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run nbody --param steps=10000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.mandelbrot.rust-lto`
+
+cpu.mandelbrot with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `mandelbrot` in `go/cpu/`, rust: `mandelbrot` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.mandelbrot`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `w4000` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run mandelbrot --param w=4000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run mandelbrot --param w=4000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `cpu.csvparse.rust-lto`
+
+cpu.csvparse with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged.
+
+- **Implementations:** go: `csvparse` in `go/cpu/`, rust: `csvparse` in `rust/cpu/`
+- **Track:** `tuned` (variant of `cpu.csvparse`)
+- **Build flavor:** rust: `tuned`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `100MiB` (standard/full) input `csv/requests-100MiB.csv`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/cpu run csvparse --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run csvparse --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`

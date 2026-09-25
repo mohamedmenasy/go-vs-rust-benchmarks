@@ -23,19 +23,14 @@ impl Params {
     pub fn int(&self, key: &str, def: i64) -> i64 {
         match self.0.get(key) {
             None => def,
-            Some(v) => v
-                .replace('_', "")
-                .parse()
-                .unwrap_or_else(|e| panic!("param {key}={v:?}: {e}")),
+            Some(v) => v.replace('_', "").parse().unwrap_or_else(|e| panic!("param {key}={v:?}: {e}")),
         }
     }
 
     pub fn float(&self, key: &str, def: f64) -> f64 {
         match self.0.get(key) {
             None => def,
-            Some(v) => v
-                .parse()
-                .unwrap_or_else(|e| panic!("param {key}={v:?}: {e}")),
+            Some(v) => v.parse().unwrap_or_else(|e| panic!("param {key}={v:?}: {e}")),
         }
     }
 

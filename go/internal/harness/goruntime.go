@@ -27,15 +27,27 @@ type rtSnapshot struct {
 	ru  rusage
 }
 
-func snapshotRuntime() rtSnapshot {
+// snapshotRuntime captures allocator/GC/rusage state. The harness's own
+// allocations (the metrics slice) must fall outside the measured window, so
+// the start snapshot reads MemStats last and the end snapshot reads it first.
+func snapshotRuntime(start bool) rtSnapshot {
 	var s rtSnapshot
-	s.met = make([]metrics.Sample, len(metricNames))
-	for i, n := range metricNames {
-		s.met[i].Name = n
+	readMetrics := func() {
+		s.met = make([]metrics.Sample, len(metricNames))
+		for i, n := range metricNames {
+			s.met[i].Name = n
+		}
+		metrics.Read(s.met)
 	}
-	metrics.Read(s.met)
-	runtime.ReadMemStats(&s.ms)
-	s.ru = getRusage()
+	if start {
+		readMetrics()
+		s.ru = getRusage()
+		runtime.ReadMemStats(&s.ms)
+	} else {
+		runtime.ReadMemStats(&s.ms)
+		s.ru = getRusage()
+		readMetrics()
+	}
 	return s
 }
 

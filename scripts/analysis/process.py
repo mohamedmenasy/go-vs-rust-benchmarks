@@ -42,14 +42,30 @@ def list_runs(mode: str) -> list[Path]:
     return runs
 
 
+def _category_finished_at(run: Path, category: str) -> str:
+    """When `category` last finished in this run (ISO time), from run.json."""
+    meta = read_json(run / "run.json")
+    times = [
+        inv.get("finished_at", "")
+        for inv in meta.get("invocations", [])
+        if category in (inv.get("categories") or [category]) or inv.get("kind") == category
+    ]
+    if times:
+        return max(times)
+    return ""
+
+
 def latest_per_category(mode: str) -> dict[str, Path]:
-    """category -> most recent run directory (run ids sort chronologically)."""
-    chosen: dict[str, Path] = {}
+    """category -> the run that most recently completed it (by run.json time)."""
+    best: dict[str, tuple[str, Path]] = {}
     for run in list_runs(mode):
         for cat_dir in run.iterdir():
-            if cat_dir.is_dir() and any(cat_dir.rglob("*.json")):
-                chosen[cat_dir.name] = run  # later runs overwrite earlier ones
-    return chosen
+            if not (cat_dir.is_dir() and any(cat_dir.rglob("*.json"))):
+                continue
+            stamp = _category_finished_at(run, cat_dir.name) or run.name
+            if cat_dir.name not in best or stamp >= best[cat_dir.name][0]:
+                best[cat_dir.name] = (stamp, run)
+    return {cat: run for cat, (_, run) in best.items()}
 
 
 # --------------------------------------------------------------------------- harness records

@@ -1,0 +1,18 @@
+[package]
+name = "bench-cpu"
+description = "Single-threaded CPU-bound workloads (mirror of go/cpu)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "cpu"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true
+sha2.workspace = true

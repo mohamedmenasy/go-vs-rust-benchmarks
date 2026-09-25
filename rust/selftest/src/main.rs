@@ -20,42 +20,20 @@ impl Instance for Spin {
 
 fn spin(p: &Params) -> Result<(Box<dyn Instance>, Work), String> {
     let n = p.int("n", 1_000_000) as u64;
-    Ok((
-        Box::new(Spin { n }),
-        Work {
-            unit: "mixes",
-            per_run: n as f64,
-            input_bytes: 0,
-        },
-    ))
+    Ok((Box::new(Spin { n }), Work { unit: "mixes", per_run: n as f64, input_bytes: 0 }))
 }
 
 fn opspin(p: &Params) -> Result<(Box<dyn Instance>, Work), String> {
     let n = p.int("n", 1000) as u64;
-    Ok((
-        Box::new(Spin { n }),
-        Work {
-            unit: "mixes",
-            per_run: n as f64,
-            input_bytes: 0,
-        },
-    ))
+    Ok((Box::new(Spin { n }), Work { unit: "mixes", per_run: n as f64, input_bytes: 0 }))
 }
 
 fn main() {
     bench_common::main(
         "selftest",
         &[
-            Workload {
-                name: "spin",
-                mode: Mode::Iter,
-                setup: spin,
-            },
-            Workload {
-                name: "opspin",
-                mode: Mode::Op,
-                setup: opspin,
-            },
+            Workload { name: "spin", mode: Mode::Iter, setup: spin },
+            Workload { name: "opspin", mode: Mode::Op, setup: opspin },
         ],
     );
 }

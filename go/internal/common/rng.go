@@ -5,7 +5,10 @@
 // expected outputs and is checked by the test suites of all three languages.
 package common
 
-import "math/bits"
+import (
+	"encoding/binary"
+	"math/bits"
+)
 
 // Constants of the SplitMix64 generator (Steele, Lea & Flood 2014).
 const (
@@ -36,6 +39,17 @@ func (s *SplitMix64) Below(n uint64) uint64 {
 // Float64 returns a value in [0, 1) with 53 bits of randomness.
 func (s *SplitMix64) Float64() float64 {
 	return float64(s.Next()>>11) * (1.0 / (1 << 53))
+}
+
+// RandomBytes returns n bytes: the SplitMix64(seed) stream as little-endian
+// 64-bit words, truncated to n (identical to Rust's rng::random_bytes).
+func RandomBytes(seed uint64, n int) []byte {
+	out := make([]byte, (n+7)&^7)
+	r := NewSplitMix64(seed)
+	for i := 0; i < len(out); i += 8 {
+		binary.LittleEndian.PutUint64(out[i:], r.Next())
+	}
+	return out[:n]
 }
 
 // Mix64 is the SplitMix64 output finalizer. It is a bijection on uint64.

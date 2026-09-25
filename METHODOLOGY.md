@@ -252,6 +252,21 @@ allocation plus a free, matching Go's `append` semantics. Its timings are
 never used. Go's allocation counters (`runtime.MemStats`) are always
 maintained by the runtime. They are read only outside the timed region.
 
+In both languages the allocation counters cover the **measured window only**
+(from the first measured iteration to the last). The harness keeps its own
+bookkeeping out of that window:
+
+- the samples buffer is pre-sized;
+- phase markers are printed outside the window;
+- the Go snapshot allocates its metrics buffer before reading `MemStats` at
+  the start of the window, and after reading it at the end.
+
+The counters therefore report the workload's own allocations, including
+those of the untimed per-iteration `prepare` step. Workloads avoid
+allocating in `prepare`; for example, the sort benchmarks re-copy into an
+existing buffer. In a run with 0 allocations per operation (Fibonacci,
+sorting u64s), both languages report exactly 0.
+
 ## 8. Metrics
 
 | Metric | Definition | Source |
@@ -383,6 +398,31 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 - **Floating-point equality.** Results are compared bit for bit, which works
   because neither compiler contracts `a*b+c` into an FMA at the baseline ISA.
   If a future toolchain changes this, the workload documents a tolerance.
+- **Floating-point constants.** Go evaluates constant expressions such as
+  `4*math.Pi*math.Pi` exactly, with arbitrary precision, and rounds once.
+  Rust and Python round after every IEEE operation. The two can differ in
+  the last bit. The Go n-body code therefore derives its constants with
+  run-time `float64` variables, so all three implementations start from
+  identical bits. `spec/golden.json` checks the initial energy
+  (−0.169075164) and the energy after 1,000 steps (−0.169087605) against
+  the Python reference.
+- **Python reference.** Every CPU workload also has an independent Python
+  implementation (`scripts/benchctl/golden_workloads.py`), and the Go and
+  Rust unit tests check their small-size digests against it.
+- **SHA-256 backends on the reference host.** This CPU has AVX2 but no
+  SHA-NI.
+  - Go's `crypto/sha256` uses its AVX2 assembly path.
+  - `sha2` 0.11 detects SHA-NI at run time and otherwise falls back to its
+    portable ("soft") Rust implementation.
+  - `sha256-lib` therefore compares Go assembly with portable Rust.
+    `sha256-portable` compares the same portable algorithm in both
+    languages.
+- **Stable sort algorithms differ.** Go's `slices.SortStableFunc` uses
+  insertion-sorted blocks and an in-place SymMerge: no allocation,
+  O(n log² n). Rust's `sort_by_key` uses driftsort with an O(n) scratch
+  buffer. The allocation columns show this.
+- **Recursion.** For `fib`, LLVM may turn one of the two recursive calls into
+  a loop. Go's compiler does not. The logical call tree is identical.
 
 ### 13.2 Memory (2 cores)
 

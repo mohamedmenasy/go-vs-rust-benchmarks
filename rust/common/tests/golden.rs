@@ -35,11 +35,7 @@ fn digests_match_golden() {
     let d = &g["digest"];
     for c in d["fnv1a64"].as_array().unwrap() {
         let input = c["input"].as_str().unwrap();
-        assert_eq!(
-            fnv1a64(input.as_bytes()),
-            golden_hex(&c["hash"]),
-            "{input:?}"
-        );
+        assert_eq!(fnv1a64(input.as_bytes()), golden_hex(&c["hash"]), "{input:?}");
     }
     for c in d["mix64"].as_array().unwrap() {
         assert_eq!(mix64(golden_hex(&c["in"])), golden_hex(&c["out"]));

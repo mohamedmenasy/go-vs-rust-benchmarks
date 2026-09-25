@@ -76,3 +76,276 @@ desc = "Harness self-test for per-operation timing (histograms)."
 sizes = [
   { label = "1k", n = 1000, profiles = ["quick", "standard", "full"] },
 ]
+
+# ===========================================================================
+# 1. CPU-bound workloads (single core; see METHODOLOGY.md §13.1)
+# ===========================================================================
+
+[[workload]]
+id = "cpu.fib"
+category = "cpu"
+bin = "cpu"
+impl = "fib"
+cores = "single"
+desc = "Naive doubly-recursive Fibonacci fib(n) on u64: function-call overhead, stack frames, branch prediction."
+notes = "LLVM may turn one of the two recursive calls into a loop (accumulator transformation); the Go compiler does not. Logical work (the call tree) is identical."
+sizes = [
+  { label = "n30", n = 30, profiles = ["quick"] },
+  { label = "n35", n = 35, profiles = ["standard", "full"] },
+  { label = "n38", n = 38, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.sieve"
+category = "cpu"
+bin = "cpu"
+impl = "sieve"
+cores = "single"
+desc = "Sieve of Eratosthenes over a byte-per-number array (allocated in setup, cleared in the timed run); returns prime count and sum."
+sizes = [
+  { label = "1e6", n = 1_000_000, profiles = ["quick"] },
+  { label = "1e7", n = 10_000_000, profiles = ["standard", "full"] },
+  { label = "1e8", n = 100_000_000, profiles = ["standard", "full"] },
+  { label = "1e9", n = 1_000_000_000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.sha256-lib"
+category = "cpu"
+bin = "cpu"
+impl = "sha256-lib"
+cores = "single"
+desc = "SHA-256 of an in-memory buffer with each ecosystem's standard choice: Go crypto/sha256 vs Rust sha2 0.11."
+notes = "Ecosystem comparison. Go uses hand-written assembly (SHA-NI if present, else AVX2). sha2 uses SHA-NI intrinsics if present, else portable Rust. The reference host has no SHA-NI, so this is Go AVX2 assembly vs portable Rust."
+sizes = [
+  { label = "16MiB", bytes = "16MiB", profiles = ["quick"] },
+  { label = "64MiB", bytes = "64MiB", profiles = ["standard", "full"] },
+  { label = "256MiB", bytes = "256MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.sha256-portable"
+category = "cpu"
+bin = "cpu"
+impl = "sha256-portable"
+cores = "single"
+desc = "SHA-256 with an identical, straightforward FIPS 180-4 implementation in both languages: compares the compilers on the same source-level algorithm."
+sizes = [
+  { label = "16MiB", bytes = "16MiB", profiles = ["quick"] },
+  { label = "64MiB", bytes = "64MiB", profiles = ["standard", "full"] },
+  { label = "256MiB", bytes = "256MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.sort-u64"
+category = "cpu"
+bin = "cpu"
+impl = "sort-u64"
+cores = "single"
+desc = "Standard-library unstable sort of random u64 (Go slices.Sort pdqsort vs Rust sort_unstable ipnsort). Re-copying the input is untimed."
+sizes = [
+  { label = "100k", n = 100_000, profiles = ["quick"] },
+  { label = "1M", n = 1_000_000, profiles = ["standard", "full"] },
+  { label = "10M", n = 10_000_000, profiles = ["standard", "full"] },
+  { label = "50M", n = 50_000_000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.sort-stable"
+category = "cpu"
+bin = "cpu"
+impl = "sort-stable"
+cores = "single"
+desc = "Standard-library stable sort of 16-byte records by a key with ~4 duplicates per key (Go slices.SortStableFunc vs Rust sort_by_key)."
+notes = "Different algorithms by design of each standard library: Go uses insertion-sort blocks + in-place SymMerge (no allocation, O(n log^2 n)); Rust uses driftsort with an O(n) auxiliary buffer."
+sizes = [
+  { label = "100k", n = 100_000, profiles = ["quick"] },
+  { label = "1M", n = 1_000_000, profiles = ["standard", "full"] },
+  { label = "10M", n = 10_000_000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.matmul"
+category = "cpu"
+bin = "cpu"
+impl = "matmul"
+cores = "single"
+desc = "Naive i-k-j float64 matrix multiplication, flat indexing c[i*n+j] += a[i*n+k]*b[k*n+j] (bounds-checked in both languages)."
+sizes = [
+  { label = "n128", n = 128, profiles = ["quick"] },
+  { label = "n256", n = 256, profiles = ["standard", "full"] },
+  { label = "n512", n = 512, profiles = ["standard", "full"] },
+  { label = "n1024", n = 1024, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.matmul-rows"
+category = "cpu"
+bin = "cpu"
+impl = "matmul-rows"
+track = "idiomatic"
+variant_of = "cpu.matmul"
+cores = "single"
+desc = "Same arithmetic as cpu.matmul written with row sub-slices (Go, with a bounds-check-elimination hint) and chunk/zip iterators (Rust), as each language's idiom."
+notes = "Rust's iterator form lets LLVM drop bounds checks and auto-vectorize (SSE2); Go's compiler drops bounds checks but does not auto-vectorize."
+sizes = [
+  { label = "n128", n = 128, profiles = ["quick"] },
+  { label = "n512", n = 512, profiles = ["standard", "full"] },
+  { label = "n1024", n = 1024, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.nbody"
+category = "cpu"
+bin = "cpu"
+impl = "nbody"
+cores = "single"
+desc = "Benchmarks Game n-body (5 bodies, dt=0.01), simple scalar formulation; returns energy before/after (bit-identical across languages)."
+sizes = [
+  { label = "1M", steps = 1_000_000, profiles = ["quick"] },
+  { label = "10M", steps = 10_000_000, profiles = ["standard", "full"] },
+  { label = "50M", steps = 50_000_000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.mandelbrot"
+category = "cpu"
+bin = "cpu"
+impl = "mandelbrot"
+cores = "single"
+desc = "Escape-time Mandelbrot (50 iterations) on a w x w grid, one bit per pixel; scalar float64."
+sizes = [
+  { label = "w1000", w = 1000, profiles = ["quick"] },
+  { label = "w4000", w = 4000, profiles = ["standard", "full"] },
+  { label = "w16000", w = 16000, profiles = ["full"] },
+]
+
+[[workload]]
+id = "cpu.csvparse"
+category = "cpu"
+bin = "cpu"
+impl = "csvparse"
+cores = "single"
+desc = "Parse an in-memory request-log CSV (line/field scanning, integer and decimal parsing) and aggregate per endpoint in a string-keyed hash map."
+notes = "Baseline hash maps use each language's default hasher (Go AES-based, Rust SipHash-1-3). Input is read and (Rust) UTF-8-validated during untimed setup."
+sizes = [
+  { label = "10MiB", input = "csv/requests-10MiB.csv", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "csv/requests-100MiB.csv", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "csv/requests-1GiB.csv", profiles = ["full"] },
+]
+
+# --- tuned track: Rust built with fat LTO + codegen-units=1 + panic=abort ---
+
+[[workload]]
+id = "cpu.fib.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "fib"
+track = "tuned"
+variant_of = "cpu.fib"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.fib with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "n35", n = 35, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.sieve.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "sieve"
+track = "tuned"
+variant_of = "cpu.sieve"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.sieve with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "1e8", n = 100_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.sha256-portable.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "sha256-portable"
+track = "tuned"
+variant_of = "cpu.sha256-portable"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.sha256-portable with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "256MiB", bytes = "256MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.sort-u64.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "sort-u64"
+track = "tuned"
+variant_of = "cpu.sort-u64"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.sort-u64 with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "10M", n = 10_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.matmul.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "matmul"
+track = "tuned"
+variant_of = "cpu.matmul"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.matmul with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "n512", n = 512, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.nbody.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "nbody"
+track = "tuned"
+variant_of = "cpu.nbody"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.nbody with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "10M", steps = 10_000_000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.mandelbrot.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "mandelbrot"
+track = "tuned"
+variant_of = "cpu.mandelbrot"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.mandelbrot with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "w4000", w = 4000, profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "cpu.csvparse.rust-lto"
+category = "cpu"
+bin = "cpu"
+impl = "csvparse"
+track = "tuned"
+variant_of = "cpu.csvparse"
+flavor = { rust = "tuned" }
+cores = "single"
+desc = "cpu.csvparse with Rust built using the release-tuned profile (fat LTO, codegen-units=1, panic=abort); Go unchanged."
+sizes = [
+  { label = "100MiB", input = "csv/requests-100MiB.csv", profiles = ["standard", "full"] },
+]

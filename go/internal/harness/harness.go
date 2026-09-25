@@ -237,8 +237,11 @@ func execute(bin string, wl *Workload, params Params, o options) (res map[string
 			warm = append(warm, dt)
 			sum += dt
 		}
-		snap0 = snapshotRuntime()
+		// Harness buffers are sized and phase markers printed outside the
+		// snapshot window so that allocation counters see workload allocations only.
+		samples = make([]int64, 0, 4096)
 		phase("measure_start")
+		snap0 = snapshotRuntime(true)
 		sum, start = 0, clk.now()
 		for i := 0; (i < o.iters || sum < minNs) && i < o.maxIters && clk.now()-start < maxPhase; i++ {
 			dt, err := one()
@@ -248,8 +251,8 @@ func execute(bin string, wl *Workload, params Params, o options) (res map[string
 			samples = append(samples, dt)
 			sum += dt
 		}
+		snap1 = snapshotRuntime(false)
 		phase("measure_end")
-		snap1 = snapshotRuntime()
 
 	case ModeOp:
 		batch := func(n int64, h *Histogram) (int64, error) {
@@ -296,8 +299,9 @@ func execute(bin string, wl *Workload, params Params, o options) (res map[string
 			sum += dt
 		}
 		hist = &Histogram{}
-		snap0 = snapshotRuntime()
+		samples = make([]int64, 0, 4096)
 		phase("measure_start")
+		snap0 = snapshotRuntime(true)
 		sum, start = 0, clk.now()
 		for i := 0; (i < o.iters || sum < minNs) && i < o.maxIters && clk.now()-start < maxPhase; i++ {
 			dt, err := batch(opsPerSample, hist)
@@ -307,8 +311,8 @@ func execute(bin string, wl *Workload, params Params, o options) (res map[string
 			samples = append(samples, dt)
 			sum += dt
 		}
+		snap1 = snapshotRuntime(false)
 		phase("measure_end")
-		snap1 = snapshotRuntime()
 	}
 
 	checksum := common.Hex(ds.digest)

@@ -85,11 +85,7 @@ static GLOBAL: counting::Counting<mimalloc::MiMalloc> = counting::Counting(mimal
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 pub fn allocator_name() -> &'static str {
-    if cfg!(feature = "mimalloc") {
-        "mimalloc"
-    } else {
-        "system (glibc malloc)"
-    }
+    if cfg!(feature = "mimalloc") { "mimalloc" } else { "system (glibc malloc)" }
 }
 
 pub fn counting_enabled() -> bool {

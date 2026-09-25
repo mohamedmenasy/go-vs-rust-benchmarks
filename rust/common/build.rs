@@ -13,11 +13,7 @@ fn main() {
         .unwrap_or_default();
     println!("cargo:rustc-env=BENCH_RUSTC_VERSION={}", version.trim());
     for key in ["PROFILE", "OPT_LEVEL", "DEBUG", "TARGET"] {
-        println!(
-            "cargo:rustc-env=BENCH_BUILD_{}={}",
-            key,
-            env::var(key).unwrap_or_default()
-        );
+        println!("cargo:rustc-env=BENCH_BUILD_{}={}", key, env::var(key).unwrap_or_default());
     }
     println!(
         "cargo:rustc-env=BENCH_TARGET_FEATURES={}",
