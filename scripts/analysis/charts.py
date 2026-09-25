@@ -39,6 +39,9 @@ plt.rcParams.update({
 })
 
 
+PLAIN = matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}")
+
+
 def _save(fig, out: Path, name: str) -> None:
     out.mkdir(parents=True, exist_ok=True)
     fig.savefig(out / f"{name}.png", bbox_inches="tight")
@@ -80,11 +83,13 @@ def forest(cmp: pd.DataFrame, category: str, out: Path) -> None:
     lim = max(2.0, float(np.nanmax(d[["ratio_ci_high", "ratio_rust_over_go"]].to_numpy())) * 1.1,
               1 / max(1e-9, float(np.nanmin(d[["ratio_ci_low", "ratio_rust_over_go"]].to_numpy()))) * 1.1)
     ax.set_xlim(1 / lim, lim)
+    ticks = [t for t in (0.05, 0.1, 0.2, 0.5, 0.8, 1, 1.25, 2, 5, 10, 20) if 1 / lim <= t <= lim]
+    ax.set_xticks(ticks)
+    ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}×"))
-    ax.set_xlabel("Rust / Go median time  (← Rust faster · Go faster →)")
+    ax.set_xlabel("Rust / Go median time  (← Rust faster · Go faster →)\nCI over per-process medians; flagged runs excluded")
     ax.set_title(f"{category}: time ratio with 95% bootstrap CI")
-    ax.legend(loc="lower right", fontsize=8)
-    _footer(fig, "One point per workload × size; CI over per-process medians. Excluded/flagged runs are not plotted.")
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.32 if len(d) < 8 else -0.2), ncol=2, fontsize=8)
     _save(fig, out, f"{category}_ratio")
 
 
@@ -92,13 +97,15 @@ def paired_bars(d: pd.DataFrame, labels, go_vals, rust_vals, title, xlabel, out,
     y = np.arange(len(d))
     h = 0.38
     fig, ax = plt.subplots(figsize=(8, 0.34 * len(d) + 1.4))
-    for off, vals, lang in ((h / 2, go_vals, "go"), (-h / 2, rust_vals, "rust")):
-        ax.barh(y + off, vals, height=h - 0.04, color=COLORS[lang], label=LABELS[lang], edgecolor=SURFACE, linewidth=1)
+    # y is inverted below, so the negative offset draws Go above Rust (legend order).
+    for off, vals, lang in ((-h / 2, go_vals, "go"), (h / 2, rust_vals, "rust")):
+        ax.barh(y + off, vals, height=h - 0.06, color=COLORS[lang], label=LABELS[lang], edgecolor=SURFACE, linewidth=1)
     ax.set_yticks(y, labels)
     ax.invert_yaxis()
     ax.grid(axis="y", visible=False)
     if log_x:
         ax.set_xscale("log")
+        ax.xaxis.set_major_formatter(PLAIN)
     ax.set_xlabel(xlabel)
     ax.set_title(title)
     ax.legend(loc="lower right", fontsize=8)
@@ -129,6 +136,7 @@ def http_charts(proc: Path, out: Path) -> None:
             ax.fill_between(s.index, s["min"], s["max"], color=COLORS[lang], alpha=0.15, lw=0)
             ax.plot(s.index, s["median"], marker="o", ms=5, lw=2, color=COLORS[lang], label=LABELS[lang])
         ax.set_xscale("log")
+        ax.xaxis.set_major_formatter(PLAIN)
         ax.set_xlabel("concurrent connections (wrk, closed loop)")
         ax.set_ylabel("requests / s")
         ax.set_title(f"{wl}: throughput by concurrency (median, band = min–max)")
@@ -140,6 +148,8 @@ def http_charts(proc: Path, out: Path) -> None:
             ax.plot(s.index, s.values, marker="o", ms=5, lw=2, color=COLORS[lang], label=LABELS[lang])
         ax.set_xscale("log")
         ax.set_yscale("log")
+        ax.xaxis.set_major_formatter(PLAIN)
+        ax.yaxis.set_major_formatter(PLAIN)
         ax.set_xlabel("concurrent connections")
         ax.set_ylabel("p99 latency, ms (log)")
         ax.set_title(f"{wl}: closed-loop p99 latency by concurrency")
@@ -155,6 +165,7 @@ def http_charts(proc: Path, out: Path) -> None:
             ax.plot(x, v, marker="o", ms=5, lw=2, color=COLORS[lang], label=LABELS[lang])
         ax.set_xticks(x, [f"p{p}" for p in pcts])
         ax.set_yscale("log")
+        ax.yaxis.set_major_formatter(PLAIN)
         ax.set_ylabel("latency, ms (log)")
         rate = g["target_rps"].iloc[0]
         ax.set_title(f"{wl}: open-loop latency at {rate:,.0f} req/s ({lvl[1:]}% of the slower server's capacity)")
