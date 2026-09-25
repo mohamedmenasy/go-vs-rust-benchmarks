@@ -663,6 +663,21 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 ### 13.7 Strings, 13.8 Collections (single core)
 
 - **Strings:** operations on the shared text corpus.
+  - The corpus is read in untimed setup; Rust also validates UTF-8 there,
+    once.
+  - Token lists are *views* into the corpus in both languages: Go
+    substrings, and in Rust `&str` into a leaked copy of the corpus. No
+    token is copied.
+  - `format` compares `fmt.Fprintf` into a `strings.Builder` with
+    `write!`/`writeln!` into a `String`. Both format `%.2f` with correct
+    rounding, and the outputs are byte-identical.
+  - `regex` compares Go `regexp` (RE2-style) with Rust `regex` 1.13. Both
+    are linear-time automata with leftmost-first semantics. Patterns use
+    explicit ASCII classes. The digest covers match counts and the sum of
+    match byte offsets, so the same matches must be found.
+  - `upper` uses full Unicode case mapping in Rust and simple mapping in
+    Go. The corpus contains no SpecialCasing characters, so the outputs are
+    identical; Python's `str.upper` produces the same bytes.
 - **Collections:** 10k–1M (and 10M) elements.
 - **Hashing:** the default hashers differ (Go's AES-based hash vs Rust's
   SipHash-1-3). This is part of the baseline. A faster Rust hasher is a

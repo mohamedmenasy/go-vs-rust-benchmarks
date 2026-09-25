@@ -738,5 +738,26 @@
    "fixture": "spec/fixtures/requests-16KiB.csv",
    "digest": "9dff44d176515504"
   }
+ },
+ "strings": {
+  "fixture": "spec/fixtures/corpus-64KiB.txt",
+  "concat": {
+   "len": 65518,
+   "fnv1a64": "92d5f4a169435c2b"
+  },
+  "format": {
+   "records": 1000,
+   "len": 62992,
+   "fnv1a64": "a765732dc9a56b2a"
+  },
+  "search": "104822637a904ecd",
+  "split": "cbef531802a49471",
+  "regex": "d3d03ed7b914e7d7",
+  "parse_numbers": "6267e134843834ed",
+  "unicode_count": 62453,
+  "upper": {
+   "len": 65518,
+   "fnv1a64": "36ee5a79212da573"
+  }
  }
 }

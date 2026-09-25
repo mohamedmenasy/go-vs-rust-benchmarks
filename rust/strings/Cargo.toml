@@ -1,0 +1,18 @@
+[package]
+name = "bench-strings"
+description = "String processing workloads (mirror of go/strings)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "strings"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true
+regex.workspace = true

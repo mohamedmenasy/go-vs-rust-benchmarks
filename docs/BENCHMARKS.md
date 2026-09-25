@@ -933,3 +933,131 @@ io.lines with the page cache dropped before every iteration.
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/io run lines --param input=datasets/csv/requests-1GiB.csv --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/io run lines --param input=datasets/csv/requests-1GiB.csv --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 7. String processing
+
+### `str.concat`
+
+Append every whitespace-separated token of the corpus plus ';' to a builder with no preallocation (strings.Builder vs String); tokens are views into the corpus in both languages.
+
+- **Implementations:** go: `concat` in `go/strings/`, rust: `concat` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run concat --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run concat --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.search`
+
+Count non-overlapping occurrences of ' the ', 'benchmark' and 'λόγος' in the corpus (strings.Count vs str::matches().count()).
+
+- **Implementations:** go: `search` in `go/strings/`, rust: `search` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run search --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run search --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.split`
+
+Split the corpus into lines and each line into words, collecting each level (strings.Split vs split().collect::<Vec<&str>>()); substrings are not copied.
+
+- **Implementations:** go: `split` in `go/strings/`, rust: `split` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run split --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run split --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.split-lazy`
+
+The same split with lazy iterators and no collection (Go 1.24 strings.SplitSeq vs Rust split iterators).
+
+- **Implementations:** go: `split-lazy` in `go/strings/`, rust: `split-lazy` in `rust/strings/`
+- **Track:** `idiomatic` (variant of `str.split`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run split-lazy --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run split-lazy --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.regex`
+
+Find all matches of three ASCII-explicit patterns (e-mail, ISO date, keyword+digits) and sum their byte offsets: Go regexp (RE2) vs Rust regex 1.13.
+
+- **Implementations:** go: `regex` in `go/strings/`, rust: `regex` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run regex --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run regex --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.parse-numbers`
+
+Parse every integer and decimal token of the corpus (strconv.ParseInt/ParseFloat vs str::parse); tokens extracted in setup.
+
+- **Implementations:** go: `parse-numbers` in `go/strings/`, rust: `parse-numbers` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run parse-numbers --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run parse-numbers --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.unicode-count`
+
+Count Unicode scalar values in the corpus (utf8.RuneCountInString vs chars().count()).
+
+- **Implementations:** go: `unicode-count` in `go/strings/`, rust: `unicode-count` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run unicode-count --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run unicode-count --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.upper`
+
+Unicode upper-casing of the whole corpus (strings.ToUpper vs str::to_uppercase); the corpus has no SpecialCasing characters so outputs are byte-identical.
+
+- **Implementations:** go: `upper` in `go/strings/`, rust: `upper` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `text/corpus-10MiB.txt`; `100MiB` (standard/full) input `text/corpus-100MiB.txt`; `1GiB` (full) input `text/corpus-1GiB.txt`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run upper --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run upper --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `str.format`
+
+Format records 'id=%d name=%s score=%.2f active=%t' into one growing string (fmt.Fprintf into a Builder vs write!/writeln! into a String).
+
+- **Implementations:** go: `format` in `go/strings/`, rust: `format` in `rust/strings/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `100k` (quick); `1M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/strings run format --param records=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/strings run format --param records=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`

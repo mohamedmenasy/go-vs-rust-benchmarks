@@ -53,6 +53,10 @@
    "bytes": 1048671,
    "sha256": "204429b847a3f86b2fb89ea43b9f9ef0bdaa7dee091391976c6bb5cdadb823f5"
   },
+  "text/corpus-100MiB.txt": {
+   "bytes": 104857579,
+   "sha256": "81c3ae1fb753510179c57a91b7bdff2901e09ce444c44b996c47abf02499ea4a"
+  },
   "text/corpus-10MiB.txt": {
    "bytes": 10485739,
    "sha256": "49546209a1890409ad397252c78cb6bfae2666973d629db82a5998a58cca7f49"

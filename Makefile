@@ -25,7 +25,7 @@ CARGO := cargo
 BENCH := scripts/bench
 
 # Programs (directory under go/, [[bin]] name in rust/).
-BINS := selftest cpu memory json concurrency io
+BINS := selftest cpu memory json concurrency io strings
 GO_BINS := $(BINS) http http-gin
 RUST_BINS := $(BINS) http-axum http-actix
 HARNESS_CATEGORIES := cpu memory json concurrency io strings collections

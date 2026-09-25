@@ -1039,3 +1039,132 @@ desc = "io.lines with the page cache dropped before every iteration."
 sizes = [
   { label = "1GiB", input = "csv/requests-1GiB.csv", drop_caches = true, profiles = ["full"] },
 ]
+
+# ===========================================================================
+# 7. String processing (single core; shared text corpus)
+# ===========================================================================
+
+[[workload]]
+id = "str.concat"
+category = "strings"
+bin = "strings"
+impl = "concat"
+track = "baseline"
+cores = "single"
+desc = "Append every whitespace-separated token of the corpus plus ';' to a builder with no preallocation (strings.Builder vs String); tokens are views into the corpus in both languages."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.search"
+category = "strings"
+bin = "strings"
+impl = "search"
+track = "baseline"
+cores = "single"
+desc = "Count non-overlapping occurrences of ' the ', 'benchmark' and 'λόγος' in the corpus (strings.Count vs str::matches().count())."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.split"
+category = "strings"
+bin = "strings"
+impl = "split"
+track = "baseline"
+cores = "single"
+desc = "Split the corpus into lines and each line into words, collecting each level (strings.Split vs split().collect::<Vec<&str>>()); substrings are not copied."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.split-lazy"
+category = "strings"
+bin = "strings"
+impl = "split-lazy"
+track = "idiomatic"
+variant_of = "str.split"
+cores = "single"
+desc = "The same split with lazy iterators and no collection (Go 1.24 strings.SplitSeq vs Rust split iterators)."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.regex"
+category = "strings"
+bin = "strings"
+impl = "regex"
+track = "baseline"
+cores = "single"
+desc = "Find all matches of three ASCII-explicit patterns (e-mail, ISO date, keyword+digits) and sum their byte offsets: Go regexp (RE2) vs Rust regex 1.13."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.parse-numbers"
+category = "strings"
+bin = "strings"
+impl = "parse-numbers"
+track = "baseline"
+cores = "single"
+desc = "Parse every integer and decimal token of the corpus (strconv.ParseInt/ParseFloat vs str::parse); tokens extracted in setup."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.unicode-count"
+category = "strings"
+bin = "strings"
+impl = "unicode-count"
+track = "baseline"
+cores = "single"
+desc = "Count Unicode scalar values in the corpus (utf8.RuneCountInString vs chars().count())."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.upper"
+category = "strings"
+bin = "strings"
+impl = "upper"
+track = "baseline"
+cores = "single"
+desc = "Unicode upper-casing of the whole corpus (strings.ToUpper vs str::to_uppercase); the corpus has no SpecialCasing characters so outputs are byte-identical."
+sizes = [
+  { label = "10MiB", input = "text/corpus-10MiB.txt", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "text/corpus-100MiB.txt", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "text/corpus-1GiB.txt", profiles = ["full"] },
+]
+
+[[workload]]
+id = "str.format"
+category = "strings"
+bin = "strings"
+impl = "format"
+cores = "single"
+desc = "Format records 'id=%d name=%s score=%.2f active=%t' into one growing string (fmt.Fprintf into a Builder vs write!/writeln! into a String)."
+sizes = [
+  { label = "100k", records = 100_000, profiles = ["quick"] },
+  { label = "1M", records = 1_000_000, profiles = ["standard", "full"] },
+]

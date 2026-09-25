@@ -513,6 +513,97 @@ def io_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- strings
+
+SEARCH_PATTERNS = [" the ", "benchmark", "λόγος"]
+REGEX_PATTERNS = [r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}", r"[0-9]{4}-[0-9]{2}-[0-9]{2}", r"(?:foo|bar|baz|qux)[0-9]+"]
+FORMAT_NAMES = ["alice", "bob", "carol", "dmitri", "eve", "françois", "gustav", "hiroshi", "ingrid", "jürgen"]
+
+
+def _is_int(s: str) -> bool:
+    t = s[1:] if s.startswith("-") else s
+    return t != "" and all("0" <= c <= "9" for c in t)
+
+
+def _is_decimal(s: str) -> bool:
+    ip, dot, fp = s.partition(".")
+    return dot == "." and _is_int(ip) and not ip.startswith("-") and _is_int(fp) and not fp.startswith("-")
+
+
+def strings_section() -> dict:
+    import re
+
+    from . import datasets
+
+    FIXTURES.mkdir(parents=True, exist_ok=True)
+    path = FIXTURES / "corpus-64KiB.txt"
+    data = b"".join(datasets._gen_text_corpus(64 * 1024))
+    if not path.exists() or path.read_bytes() != data:
+        path.write_bytes(data)
+    text = data.decode()
+    h = R.hexu64
+    tokens = text.split()
+    concat = "".join(t + ";" for t in tokens).encode()
+
+    g = R.SplitMix64(10)
+    out = []
+    for i in range(1000):
+        score = g.below(1_000_000) / 7.0
+        out.append(f"id={g.next()} name={FORMAT_NAMES[i % len(FORMAT_NAMES)]} score={score:.2f} active={'true' if i % 3 == 0 else 'false'}\n")
+    fmt = "".join(out).encode()
+
+    d = R.Digest()
+    for p in SEARCH_PATTERNS:
+        d.add(text.count(p))
+    search = d.sum()
+
+    ntok = total = 0
+    for line in text.split("\n"):
+        words = line.split(" ")
+        ntok += len(words)
+        total += sum(len(w.encode()) for w in words)
+    d = R.Digest()
+    d.add(ntok)
+    d.add(total)
+    split = d.sum()
+
+    # regex: counts and sum of match start *byte* offsets
+    byte_off = [0]
+    for c in text:
+        byte_off.append(byte_off[-1] + len(c.encode()))
+    d = R.Digest()
+    for p in REGEX_PATTERNS:
+        ms = list(re.finditer(p, text))
+        d.add(len(ms))
+        d.add(sum(byte_off[m.start()] for m in ms) & R.MASK64)
+    regex = d.sum()
+
+    ints = [t for t in tokens if _is_int(t)]
+    floats = [t for t in tokens if not _is_int(t) and _is_decimal(t)]
+    fsum = 0.0
+    for t in floats:
+        fsum += float(t)
+    d = R.Digest()
+    d.add(len(ints))
+    d.add(sum(int(t) for t in ints) & R.MASK64)
+    d.add(len(floats))
+    d.add(f64bits(fsum))
+    parse = d.sum()
+
+    upper = text.upper().encode()
+    return {
+        "fixture": "spec/fixtures/corpus-64KiB.txt",
+        "concat": {"len": len(concat), "fnv1a64": h(R.fnv1a64(concat))},
+        "format": {"records": 1000, "len": len(fmt), "fnv1a64": h(R.fnv1a64(fmt))},
+        "search": h(search),
+        "split": h(split),
+        "regex": h(regex),
+        "parse_numbers": h(parse),
+        "unicode_count": len(text),
+        "upper": {"len": len(upper), "fnv1a64": h(R.fnv1a64(upper))},
+    }
+
+
 def sections() -> dict:
     return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section(),
-            "concurrency": concurrency_section(), "io": io_section()}
+            "concurrency": concurrency_section(), "io": io_section(), "strings": strings_section()}
