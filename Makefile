@@ -24,8 +24,10 @@ CARGO := cargo
 
 BENCH := scripts/bench
 
-# Programs built for both languages (directory under go/ == Rust [[bin]] name).
+# Programs (directory under go/, [[bin]] name in rust/).
 BINS := selftest cpu memory json
+GO_BINS := $(BINS) http http-gin
+RUST_BINS := $(BINS) http-axum http-actix
 HARNESS_CATEGORIES := cpu memory json concurrency io strings collections
 SPECIAL_CATEGORIES := http startup binsize compile
 CATEGORIES := $(HARNESS_CATEGORIES) $(SPECIAL_CATEGORIES)
@@ -44,10 +46,10 @@ setup: ## install benchmark tools, pinned toolchains and the Python venv
 build: build-go build-rust ## build all Go and Rust programs (production settings)
 
 build-go: ## CGO_ENABLED=0 GOAMD64=v1 go build -trimpath -buildvcs=false
-	scripts/build.sh go $(BINS)
+	scripts/build.sh go $(GO_BINS)
 
 build-rust: ## cargo build --release --locked (+ allocstats / tuned / mimalloc flavours)
-	scripts/build.sh rust $(BINS)
+	scripts/build.sh rust $(RUST_BINS)
 
 # --------------------------------------------------------------------------- quality
 test: test-go test-rust test-python ## unit tests in all three languages (incl. golden values)

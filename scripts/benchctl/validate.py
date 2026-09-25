@@ -16,7 +16,13 @@ from . import orchestrate
 from .spec import Spec
 from .util import log
 
-EXTRA_VALIDATORS: dict[str, Callable[[Spec, str], bool]] = {}
+def _http_parity(spec: Spec, profile: str) -> bool:
+    from . import http
+
+    return http.validate_parity(spec, profile)
+
+
+EXTRA_VALIDATORS: dict[str, Callable[[Spec, str], bool]] = {"http": _http_parity}
 
 
 def compare(results: dict[str, dict]) -> list[str]:

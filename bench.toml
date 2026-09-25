@@ -729,3 +729,73 @@ sizes = [
   { label = "arr-10k", input = "json/array-10k.json", schema = "array", profiles = ["standard", "full"] },
   { label = "arr-100k", input = "json/array-100k.json", schema = "array", profiles = ["standard", "full"] },
 ]
+
+# ===========================================================================
+# 4. HTTP (METHODOLOGY.md §13.4): server on http_server cores, wrk/wrk2 on
+#    http_loadgen cores. Driven by scripts/benchctl/http.py.
+# ===========================================================================
+[http]
+port = 18080
+timeout_s = 5
+sample_ms = 250
+latency_connections = 100
+rates = [0.25, 0.5, 0.75, 0.9]
+
+[http.quick]
+rounds = 1
+secondary_rounds = 1
+warmup_s = 3
+duration_s = 8
+connections = [10, 100, 1000]
+secondary_connections = [100]
+latency_rounds = 1
+latency_warmup_s = 3
+latency_duration_s = 10
+rates = [0.5, 0.9]
+sustained = [{ connections = 100, duration_s = 20, window_s = 10 }]
+
+[http.standard]
+rounds = 5
+secondary_rounds = 3
+warmup_s = 10
+duration_s = 30
+connections = [1, 10, 100, 500, 1000, 5000, 10000]
+secondary_connections = [10, 100, 1000, 5000]
+latency_rounds = 3
+latency_warmup_s = 10
+latency_duration_s = 60
+sustained = [{ connections = 100, duration_s = 60, window_s = 10 }, { connections = 100, duration_s = 300, window_s = 10 }]
+
+[http.full]
+rounds = 10
+secondary_rounds = 5
+warmup_s = 10
+duration_s = 60
+connections = [1, 10, 100, 500, 1000, 5000, 10000]
+secondary_connections = [1, 10, 100, 500, 1000, 5000, 10000]
+latency_rounds = 5
+latency_warmup_s = 10
+latency_duration_s = 120
+sustained = [{ connections = 100, duration_s = 300, window_s = 10 }, { connections = 1000, duration_s = 300, window_s = 10 }]
+
+[[workload]]
+id = "http.users"
+category = "http"
+kind = "http"
+impl = { go = "http", rust = "http-axum" }
+cores = "http_server"
+desc = "GET /users/{id}: parse the id, 1000 SplitMix64 mixing rounds, build a user object, JSON-encode, respond. Go net/http (standard library) vs Rust Axum 0.8 (hyper 1 + Tokio)."
+notes = "Parity: backlog = somaxconn, TCP_NODELAY on, HTTP/1.1 keep-alive, no logging, worker threads = pinned cores. Response bodies are byte-identical (checked by `make validate`)."
+extra = { tier = "primary" }
+sizes = [{ label = "suite", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "http.users-framework"
+category = "http"
+kind = "http"
+impl = { go = "http-gin", rust = "http-actix" }
+cores = "http_server"
+desc = "The same endpoint on the popular third-party frameworks: Go Gin 1.12 (on net/http, release mode, no middleware) vs Rust Actix Web 4.15 (per-worker single-threaded runtimes)."
+notes = "Secondary comparison: throughput sweep only. Gin's idiomatic c.JSON adds '; charset=utf-8' to Content-Type (recorded by the parity check)."
+extra = { tier = "secondary" }
+sizes = [{ label = "suite", profiles = ["quick", "standard", "full"] }]

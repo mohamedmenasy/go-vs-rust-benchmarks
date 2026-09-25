@@ -529,6 +529,55 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 - **Sustained load:** 5-minute runs measured in consecutive 10 s windows.
 - **Load-generator saturation:** its CPU use is sampled; saturated runs are
   flagged.
+- **Implementations.**
+  - Baseline pair: Go `net/http` (Go 1.22+ `ServeMux` patterns) vs Rust
+    Axum 0.8.9 on hyper 1.11 and Tokio 1.53.
+  - Secondary pair: Gin 1.12, which runs on `net/http`, vs Actix Web 4.15.
+  - The shared request logic is `go/internal/api` and `rust/http-common`:
+    parse the id as an unsigned 64-bit integer, run 1,000 SplitMix64
+    finalizer rounds, build `{id,name,email,score,tags,active}`, and encode
+    it with `encoding/json` or `serde_json`.
+- **Server settings made equal explicitly:**
+  - listen backlog = `somaxconn` (Go's default; Axum through
+    `TcpSocket::listen`, Actix through `.backlog()`);
+  - `TCP_NODELAY` (Go's default; Axum through `ListenerExt::tap_io`,
+    Actix through `.tcp_nodelay(true)`);
+  - worker threads = pinned cores (`GOMAXPROCS`, `TOKIO_WORKER_THREADS`,
+    Actix `.workers()`).
+- **Parity check (`make validate`).** 17 requests are sent to both servers:
+  valid ids, 0, a leading zero, `u64::MAX`, overflow, negative, non-numeric,
+  a decimal and a percent-encoded id.
+  - Status codes and bodies must match byte for byte.
+  - `net/http` and Axum also send the same response header size (128 bytes).
+  - Gin's idiomatic `c.JSON` adds `; charset=utf-8` (143 vs 128 header
+    bytes). This is recorded, not corrected.
+  - **Known difference:** `/users/+5` returns 400 from Go and 200 from Rust,
+    because Rust's `u64::from_str` accepts a leading `+` and Go's
+    `strconv.ParseUint` does not. It is reported as informational. The
+    benchmark's request stream never contains signed ids.
+- **Load generation commands:**
+  - `taskset -c <loadgen> wrk -t2 -c<C> -d<D>s --timeout 5s --latency -s scripts/wrk/report.lua`,
+    or `wrk2 ... -R<rate>`.
+  - Each thread cycles through `/users/1..10000` from a thread-specific
+    offset, so both servers see the same request mix.
+  - `report.lua` emits totals, per-type error counts (connect, read, write,
+    non-2xx, timeout) and latency percentiles as JSON.
+  - wrk runs one thread per load-generator core, capped at the number of
+    connections.
+- **Metrics.**
+  - Server CPU, RSS and threads are sampled from `/proc` every 250 ms during
+    the measured window. CPU is reported in cores busy. RSS is reported as the
+    time-weighted average and the peak during the window, and as `VmHWM`
+    over the server's whole life.
+  - **Requests per CPU-second** = requests ÷ (server CPU cores busy ×
+    window). It measures efficiency independently of how many cores were
+    saturated.
+  - In the latency tests both servers receive the *same* offered load, so
+    their CPU use is directly comparable.
+- **Capacity for the latency tests.** Latency-test rates are fractions of
+  the **slower** server's median closed-loop throughput at 100 connections,
+  from the same run. Runs flagged as load-generator-saturated are excluded
+  from that capacity estimate.
 
 ### 13.5 Concurrency (3 cores)
 

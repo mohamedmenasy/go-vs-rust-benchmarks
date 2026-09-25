@@ -1,0 +1,10 @@
+[package]
+name = "http-common"
+description = "Request logic shared by the Rust HTTP servers (mirror of go/internal/api)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+bench-common.workspace = true
+serde.workspace = true

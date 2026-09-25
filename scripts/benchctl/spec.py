@@ -72,6 +72,7 @@ class Spec:
     cores: dict[str, str]
     workloads: list[Workload]
     categories: dict[str, dict[str, Any]]
+    raw: dict[str, Any] = field(default_factory=dict)
 
     def workload(self, wid: str) -> Workload:
         for w in self.workloads:
@@ -211,4 +212,5 @@ def load(path: Path | None = None) -> Spec:
         cores={k: str(v) for k, v in doc.get("cores", {}).items()},
         workloads=workloads,
         categories=dict(doc.get("category", {})),
+        raw=doc,
     )

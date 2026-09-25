@@ -1,0 +1,20 @@
+[package]
+name = "bench-http-axum"
+description = "Baseline Rust HTTP server: Axum on Tokio/hyper (mirror of go/http)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "http-axum"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+axum.workspace = true
+bench-common.workspace = true
+http-common.workspace = true
+tokio.workspace = true

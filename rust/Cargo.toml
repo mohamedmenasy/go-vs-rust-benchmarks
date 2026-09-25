@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["common", "cpu", "json", "memory", "selftest"]
+members = ["common", "cpu", "http-actix", "http-axum", "http-common", "json", "memory", "selftest"]
 
 [workspace.package]
 version = "0.1.0"
@@ -9,6 +9,10 @@ publish = false
 
 [workspace.dependencies]
 bench-common = { path = "common" }
+http-common = { path = "http-common" }
+actix-web = { version = "4.15", default-features = false, features = ["macros"] }
+axum = { version = "0.8.9", default-features = false, features = ["http1", "json", "tokio"] }
+tokio = { version = "1.53", features = ["rt-multi-thread", "net", "macros"] }
 libc = "0.2"
 mimalloc = { version = "0.1", default-features = false }
 serde = { version = "1", features = ["derive"] }

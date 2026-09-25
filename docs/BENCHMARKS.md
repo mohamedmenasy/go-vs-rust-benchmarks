@@ -671,3 +671,29 @@ Typed encode with an optimized third-party library: Go github.com/goccy/go-json 
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/json run encode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/json run encode-fast --param input=datasets/json/object-1KiB.json --param schema=object --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 4. HTTP server
+
+### `http.users`
+
+GET /users/{id}: parse the id, 1000 SplitMix64 mixing rounds, build a user object, JSON-encode, respond. Go net/http (standard library) vs Rust Axum 0.8 (hyper 1 + Tokio).
+
+*Notes:* Parity: backlog = somaxconn, TCP_NODELAY on, HTTP/1.1 keep-alive, no logging, worker threads = pinned cores. Response bodies are byte-identical (checked by `make validate`).
+
+- **Implementations:** go: `http` in `go/http/`, rust: `http-axum` in `rust/http/`
+- **Track:** `baseline`
+- **CPU pinning:** `http_server` → cores `2-3`
+- **Sizes:** `suite` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `http` (see METHODOLOGY.md)
+
+### `http.users-framework`
+
+The same endpoint on the popular third-party frameworks: Go Gin 1.12 (on net/http, release mode, no middleware) vs Rust Actix Web 4.15 (per-worker single-threaded runtimes).
+
+*Notes:* Secondary comparison: throughput sweep only. Gin's idiomatic c.JSON adds '; charset=utf-8' to Content-Type (recorded by the parity check).
+
+- **Implementations:** go: `http-gin` in `go/http/`, rust: `http-actix` in `rust/http/`
+- **Track:** `baseline`
+- **CPU pinning:** `http_server` → cores `2-3`
+- **Sizes:** `suite` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `http` (see METHODOLOGY.md)
