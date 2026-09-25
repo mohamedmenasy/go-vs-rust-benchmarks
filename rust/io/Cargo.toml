@@ -1,0 +1,17 @@
+[package]
+name = "bench-io"
+description = "File I/O workloads (mirror of go/io)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "io"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true

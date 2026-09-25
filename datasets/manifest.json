@@ -1,9 +1,17 @@
 {
  "generator_version": 1,
  "files": {
+  "bin/random-100MiB.bin": {
+   "bytes": 104857600,
+   "sha256": "103e66576158f15ab5c3b708409269d447cd7dc852d7c503842c034919d606f8"
+  },
   "bin/random-10MiB.bin": {
    "bytes": 10485760,
    "sha256": "d932b542655fa08a05048935fc9a539b43e3af757c2dce857367a386458f0f39"
+  },
+  "bin/random-1GiB.bin": {
+   "bytes": 1073741824,
+   "sha256": "7ee11735cabe804faa29916a0bf624d43564a3833d69bceade417da8632666c2"
   },
   "csv/requests-100MiB.csv": {
    "bytes": 104857581,
@@ -12,6 +20,10 @@
   "csv/requests-10MiB.csv": {
    "bytes": 10485720,
    "sha256": "dc01d6d617040b86e99e193ff6d058ab15e08bd3e3eb96c15de5a725c09aa850"
+  },
+  "csv/requests-1GiB.csv": {
+   "bytes": 1073741782,
+   "sha256": "9b8dbb5e8d64c10ea8b96810850fa8c696f685007e88be78a258fe2def445b95"
   },
   "json/array-100k.json": {
    "bytes": 36910436,

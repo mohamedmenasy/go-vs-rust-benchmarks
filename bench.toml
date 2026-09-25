@@ -913,3 +913,129 @@ sizes = [
   { label = "n1k", conns = 1000, requests = 100_000, url = "http://127.0.0.1:18090/user", profiles = ["standard", "full"] },
   { label = "n10k", conns = 10000, requests = 100_000, url = "http://127.0.0.1:18090/user", profiles = ["standard", "full"] },
 ]
+
+# ===========================================================================
+# 6. File I/O (single core; warm page cache unless noted; METHODOLOGY.md §13.6)
+# ===========================================================================
+
+[[workload]]
+id = "io.read-seq"
+category = "io"
+bin = "io"
+impl = "read-seq"
+cores = "single"
+desc = "Sequential read of a file with raw 1 MiB read() calls into a reused buffer (open + read + close timed)."
+sizes = [
+  { label = "10MiB", input = "bin/random-10MiB.bin", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "bin/random-100MiB.bin", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "bin/random-1GiB.bin", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "io.read-buffered"
+category = "io"
+bin = "io"
+impl = "read-buffered"
+cores = "single"
+desc = "Buffered read: 64 KiB bufio.Reader / BufReader (capacity set explicitly; defaults differ: 4 KiB vs 8 KiB) with 512-byte application reads."
+sizes = [
+  { label = "10MiB", input = "bin/random-10MiB.bin", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "bin/random-100MiB.bin", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "bin/random-1GiB.bin", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "io.write-seq"
+category = "io"
+bin = "io"
+impl = "write-seq"
+cores = "single"
+desc = "Sequential write of a new file with raw 1 MiB write() calls (create + write + close timed; no fsync: page cache)."
+sizes = [
+  { label = "10MiB", bytes = "10MiB", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", bytes = "100MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "io.write-buffered"
+category = "io"
+bin = "io"
+impl = "write-buffered"
+cores = "single"
+desc = "Buffered write of 100-byte records through a 64 KiB bufio.Writer / BufWriter, then flush + close."
+sizes = [
+  { label = "10MiB", bytes = "10MiB", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", bytes = "100MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "io.write-fsync"
+category = "io"
+bin = "io"
+impl = "write-seq"
+cores = "single"
+desc = "Durable sequential write: as io.write-seq plus fsync before close (mostly measures the storage device)."
+sizes = [
+  { label = "10MiB", bytes = "10MiB", fsync = true, profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", bytes = "100MiB", fsync = true, profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", fsync = true, profiles = ["full"] },
+]
+
+[[workload]]
+id = "io.lines"
+category = "io"
+bin = "io"
+impl = "lines"
+cores = "single"
+desc = "Stream the request-log CSV line by line (64 KiB buffer, one reused line buffer: Scanner.Bytes vs read_until) and aggregate two integer fields with an identical hand-written parser."
+sizes = [
+  { label = "10MiB", input = "csv/requests-10MiB.csv", profiles = ["quick", "standard", "full"] },
+  { label = "100MiB", input = "csv/requests-100MiB.csv", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "csv/requests-1GiB.csv", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "io.lines-idiomatic"
+category = "io"
+bin = "io"
+impl = "lines-idiomatic"
+track = "idiomatic"
+variant_of = "io.lines"
+cores = "single"
+desc = "Idiomatic line processing: Go Scanner.Text + strings.Split + strconv.Atoi vs Rust BufRead::lines (String per line, UTF-8 validated) + split().collect() + str::parse."
+sizes = [
+  { label = "10MiB", input = "csv/requests-10MiB.csv", profiles = ["quick"] },
+  { label = "100MiB", input = "csv/requests-100MiB.csv", profiles = ["standard", "full"] },
+  { label = "1GiB", input = "csv/requests-1GiB.csv", profiles = ["full"] },
+]
+
+# --- cold page cache (drop_caches before every iteration; requires root) ---
+
+[[workload]]
+id = "io.read-seq.cold"
+category = "io"
+bin = "io"
+impl = "read-seq"
+track = "tuned"
+variant_of = "io.read-seq"
+cores = "single"
+desc = "io.read-seq with the page cache dropped before every iteration: measures the storage path, not just the runtime."
+sizes = [
+  { label = "100MiB", input = "bin/random-100MiB.bin", drop_caches = true, profiles = ["full"] },
+  { label = "1GiB", input = "bin/random-1GiB.bin", drop_caches = true, profiles = ["full"] },
+]
+
+[[workload]]
+id = "io.lines.cold"
+category = "io"
+bin = "io"
+impl = "lines"
+track = "tuned"
+variant_of = "io.lines"
+cores = "single"
+desc = "io.lines with the page cache dropped before every iteration."
+sizes = [
+  { label = "1GiB", input = "csv/requests-1GiB.csv", drop_caches = true, profiles = ["full"] },
+]

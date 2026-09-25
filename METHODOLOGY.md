@@ -635,6 +635,30 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 - **Cache state:** the primary mode uses a warm page cache, so it measures
   the language and runtime overhead rather than the disk. A cold-cache mode
   (`drop_caches` before every iteration) and an fsync variant are separate.
+- **What is timed.** `open`, all reads or writes, and `close`.
+- **Content digest.** One byte per 4 KiB page, weighted by page index, plus
+  the byte count, identical in Go, Rust and Python. It proves that the same
+  bytes flowed through without turning the benchmark into a CPU-bound fold.
+- **Writes.**
+  - Output goes to `scratch/io/` on the same ext4 filesystem as the
+    datasets.
+  - The previous iteration's file is unlinked in the untimed `prepare`
+    step, which discards its dirty pages without writeback.
+  - Without fsync, writes measure the page cache, and background writeback
+    and dirty-page throttling can add variance at 1 GiB.
+  - `io.write-fsync` adds `fsync` before `close`; it mostly measures the
+    (virtual) storage device.
+- **Line parsing.**
+  - Baseline: one reused line buffer (`Scanner.Bytes` vs `read_until`), a
+    64 KiB buffer, and the same hand-written integer parser on the same two
+    fields in both languages.
+  - `io.lines-idiomatic` measures typical code instead: Go
+    `Scanner.Text` + `strings.Split` + `strconv.Atoi`, vs Rust
+    `BufRead::lines`, which allocates a `String` per line and validates
+    UTF-8, + `split().collect()` + `parse`.
+- **Cold cache.** In the cold-cache variants, the measured window's CPU time
+  includes the kernel's page-cache eviction, which is charged to the
+  process that writes `drop_caches`. Only their time columns are meaningful.
 
 ### 13.7 Strings, 13.8 Collections (single core)
 

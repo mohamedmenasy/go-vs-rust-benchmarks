@@ -722,5 +722,21 @@
     "run": "c159baf04bb65ba0"
    }
   ]
+ },
+ "io": {
+  "read": {
+   "seed": 9,
+   "n": 300000,
+   "digest": "816bc22f3cc31cff"
+  },
+  "write": {
+   "seed": 8,
+   "bytes": 3158073,
+   "digest": "487e3ead084f61cb"
+  },
+  "lines": {
+   "fixture": "spec/fixtures/requests-16KiB.csv",
+   "digest": "9dff44d176515504"
+  }
  }
 }

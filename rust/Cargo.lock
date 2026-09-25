@@ -305,6 +305,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bench-io"
+version = "0.1.0"
+dependencies = [
+ "bench-common",
+]
+
+[[package]]
 name = "bench-json"
 version = "0.1.0"
 dependencies = [

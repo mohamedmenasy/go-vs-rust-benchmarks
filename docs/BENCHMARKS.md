@@ -805,3 +805,131 @@ N concurrent tasks issue 100k GET requests in total (keep-alive pool of N connec
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 2-3 bin/go/concurrency run http-client --param conns=10 --param requests=100000 --param url=http://127.0.0.1:18090/user --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 2-3 bin/rust/concurrency run http-client --param conns=10 --param requests=100000 --param url=http://127.0.0.1:18090/user --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 6. File I/O
+
+### `io.read-seq`
+
+Sequential read of a file with raw 1 MiB read() calls into a reused buffer (open + read + close timed).
+
+- **Implementations:** go: `read-seq` in `go/io/`, rust: `read-seq` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `bin/random-10MiB.bin`; `100MiB` (standard/full) input `bin/random-100MiB.bin`; `1GiB` (standard/full) input `bin/random-1GiB.bin`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run read-seq --param input=datasets/bin/random-10MiB.bin --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run read-seq --param input=datasets/bin/random-10MiB.bin --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.read-buffered`
+
+Buffered read: 64 KiB bufio.Reader / BufReader (capacity set explicitly; defaults differ: 4 KiB vs 8 KiB) with 512-byte application reads.
+
+- **Implementations:** go: `read-buffered` in `go/io/`, rust: `read-buffered` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `bin/random-10MiB.bin`; `100MiB` (standard/full) input `bin/random-100MiB.bin`; `1GiB` (standard/full) input `bin/random-1GiB.bin`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run read-buffered --param input=datasets/bin/random-10MiB.bin --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run read-buffered --param input=datasets/bin/random-10MiB.bin --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.write-seq`
+
+Sequential write of a new file with raw 1 MiB write() calls (create + write + close timed; no fsync: page cache).
+
+- **Implementations:** go: `write-seq` in `go/io/`, rust: `write-seq` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full); `100MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run write-seq --param bytes=10485760 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run write-seq --param bytes=10485760 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.write-buffered`
+
+Buffered write of 100-byte records through a 64 KiB bufio.Writer / BufWriter, then flush + close.
+
+- **Implementations:** go: `write-buffered` in `go/io/`, rust: `write-buffered` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full); `100MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run write-buffered --param bytes=10485760 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run write-buffered --param bytes=10485760 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.write-fsync`
+
+Durable sequential write: as io.write-seq plus fsync before close (mostly measures the storage device).
+
+- **Implementations:** go: `write-seq` in `go/io/`, rust: `write-seq` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full); `100MiB` (standard/full); `1GiB` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run write-seq --param bytes=10485760 --param fsync=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run write-seq --param bytes=10485760 --param fsync=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.lines`
+
+Stream the request-log CSV line by line (64 KiB buffer, one reused line buffer: Scanner.Bytes vs read_until) and aggregate two integer fields with an identical hand-written parser.
+
+- **Implementations:** go: `lines` in `go/io/`, rust: `lines` in `rust/io/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick/standard/full) input `csv/requests-10MiB.csv`; `100MiB` (standard/full) input `csv/requests-100MiB.csv`; `1GiB` (standard/full) input `csv/requests-1GiB.csv`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run lines --param input=datasets/csv/requests-10MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run lines --param input=datasets/csv/requests-10MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.lines-idiomatic`
+
+Idiomatic line processing: Go Scanner.Text + strings.Split + strconv.Atoi vs Rust BufRead::lines (String per line, UTF-8 validated) + split().collect() + str::parse.
+
+- **Implementations:** go: `lines-idiomatic` in `go/io/`, rust: `lines-idiomatic` in `rust/io/`
+- **Track:** `idiomatic` (variant of `io.lines`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `10MiB` (quick) input `csv/requests-10MiB.csv`; `100MiB` (standard/full) input `csv/requests-100MiB.csv`; `1GiB` (full) input `csv/requests-1GiB.csv`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run lines-idiomatic --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run lines-idiomatic --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.read-seq.cold`
+
+io.read-seq with the page cache dropped before every iteration: measures the storage path, not just the runtime.
+
+- **Implementations:** go: `read-seq` in `go/io/`, rust: `read-seq` in `rust/io/`
+- **Track:** `tuned` (variant of `io.read-seq`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `100MiB` (full) input `bin/random-100MiB.bin`; `1GiB` (full) input `bin/random-1GiB.bin`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run read-seq --param input=datasets/bin/random-100MiB.bin --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run read-seq --param input=datasets/bin/random-100MiB.bin --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `io.lines.cold`
+
+io.lines with the page cache dropped before every iteration.
+
+- **Implementations:** go: `lines` in `go/io/`, rust: `lines` in `rust/io/`
+- **Track:** `tuned` (variant of `io.lines`)
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `1GiB` (full) input `csv/requests-1GiB.csv`
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/io run lines --param input=datasets/csv/requests-1GiB.csv --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/io run lines --param input=datasets/csv/requests-1GiB.csv --param drop_caches=true --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`

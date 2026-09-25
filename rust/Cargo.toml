@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["common", "concurrency", "cpu", "http-actix", "http-axum", "http-common", "json", "memory", "selftest"]
+members = ["common", "concurrency", "cpu", "http-actix", "http-axum", "http-common", "io", "json", "memory", "selftest"]
 
 [workspace.package]
 version = "0.1.0"

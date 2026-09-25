@@ -470,6 +470,49 @@ def concurrency_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- file I/O
+
+def page_sample_digest(data: bytes) -> int:
+    acc = 0
+    for p in range(0, len(data), 4096):
+        acc = (acc + data[p] * (p // 4096 + 1)) & R.MASK64
+    d = R.Digest()
+    d.add(len(data))
+    d.add(acc)
+    return d.sum()
+
+
+def lines_digest(text: str) -> int:
+    lines = size_sum = n5xx = 0
+    for line in text.split("\n")[1:]:
+        if not line:
+            continue
+        f = line.split(",")
+        status, size = int(f[3]), int(f[5])
+        lines += 1
+        size_sum += size
+        n5xx += status >= 500
+    d = R.Digest()
+    d.add(lines)
+    d.add(size_sum)
+    d.add(n5xx)
+    return d.sum()
+
+
+def io_section() -> dict:
+    h = R.hexu64
+    read_data = random_bytes(9, 300_000)
+    block = random_bytes(8, 1 << 20)
+    total = 3 * (1 << 20) + 12_345
+    stream = (block * 4)[:total]
+    return {
+        "read": {"seed": 9, "n": 300_000, "digest": h(page_sample_digest(read_data))},
+        "write": {"seed": 8, "bytes": total, "digest": h(page_sample_digest(stream))},
+        "lines": {"fixture": "spec/fixtures/requests-16KiB.csv",
+                  "digest": h(lines_digest((FIXTURES / "requests-16KiB.csv").read_text()))},
+    }
+
+
 def sections() -> dict:
     return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section(),
-            "concurrency": concurrency_section()}
+            "concurrency": concurrency_section(), "io": io_section()}
