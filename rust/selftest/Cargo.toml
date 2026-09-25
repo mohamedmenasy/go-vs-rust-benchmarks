@@ -1,0 +1,17 @@
+[package]
+name = "bench-selftest"
+description = "Harness self-test workloads (mirror of go/selftest)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "selftest"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true

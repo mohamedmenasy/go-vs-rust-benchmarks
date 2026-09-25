@@ -1,0 +1,78 @@
+# bench.toml - single source of truth for the benchmark suite.
+#
+# Every workload, its parameters per profile, its core pinning and its timing
+# protocol live here. The Go and Rust programs never hard-code sizes: the
+# orchestrator (scripts/benchctl) passes them as --param key=value.
+# docs/BENCHMARKS.md is generated from this file (scripts/bench docs).
+#
+# Size strings such as "100MiB" are converted to integers (bytes) before they
+# reach the benchmark programs. Parameters named `input` are dataset paths
+# relative to datasets/; `make datasets` generates exactly the files that the
+# selected profile references.
+
+[suite]
+schema = 1
+seed = 20240917          # seeds the randomized Go/Rust order within rounds
+
+# ---------------------------------------------------------------------------
+# Profiles: how many independent process-level rounds, and the per-process
+# timing protocol (warmup + measurement). A workload may override `timing`.
+# ---------------------------------------------------------------------------
+[profiles.quick]
+rounds = 3
+timing = { warmup_iters = 1, warmup_min_ms = 100, iters = 3, min_ms = 300 }
+
+[profiles.standard]
+rounds = 10
+timing = { warmup_iters = 2, warmup_min_ms = 500, iters = 5, min_ms = 1000 }
+
+[profiles.full]
+rounds = 20
+timing = { warmup_iters = 3, warmup_min_ms = 1000, iters = 10, min_ms = 2000 }
+
+# ---------------------------------------------------------------------------
+# CPU pinning (taskset -c). Core 0 is left to the OS and the orchestrator.
+# Worker-thread counts (GOMAXPROCS, TOKIO_WORKER_THREADS, BENCH_THREADS) are
+# set to the number of cores in the set. Edit for machines with other shapes.
+# ---------------------------------------------------------------------------
+[cores]
+harness = "0"
+single = "3"
+memory = "2-3"
+memory_1core = "3"
+concurrency = "1-3"
+http_server = "2-3"
+http_loadgen = "0-1"
+compile = "0-3"
+
+# ---------------------------------------------------------------------------
+# Workloads. `id` names one Go-vs-Rust comparison. `impl` is the workload name
+# inside the binary (a table maps different names per language). `track` is
+# baseline | idiomatic | tuned (see METHODOLOGY.md, "Tracks"). `flavor`
+# selects a non-default build (bin/<lang>-<flavor>/) and `env` adds
+# environment variables, both per language.
+# ---------------------------------------------------------------------------
+
+[[workload]]
+id = "selftest.spin"
+category = "selftest"
+bin = "selftest"
+impl = "spin"
+track = "baseline"
+cores = "single"
+desc = "Harness self-test: a deterministic integer mixing loop."
+sizes = [
+  { label = "1M", n = 1_000_000, profiles = ["quick", "standard", "full"] },
+]
+
+[[workload]]
+id = "selftest.opspin"
+category = "selftest"
+bin = "selftest"
+impl = "opspin"
+track = "baseline"
+cores = "single"
+desc = "Harness self-test for per-operation timing (histograms)."
+sizes = [
+  { label = "1k", n = 1000, profiles = ["quick", "standard", "full"] },
+]

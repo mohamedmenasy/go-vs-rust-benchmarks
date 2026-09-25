@@ -1,0 +1,17 @@
+{
+ "generator_version": 1,
+ "files": {
+  "bin/random-10MiB.bin": {
+   "bytes": 10485760,
+   "sha256": "d932b542655fa08a05048935fc9a539b43e3af757c2dce857367a386458f0f39"
+  },
+  "csv/requests-10MiB.csv": {
+   "bytes": 10485720,
+   "sha256": "dc01d6d617040b86e99e193ff6d058ab15e08bd3e3eb96c15de5a725c09aa850"
+  },
+  "text/corpus-10MiB.txt": {
+   "bytes": 10485739,
+   "sha256": "49546209a1890409ad397252c78cb6bfae2666973d629db82a5998a58cca7f49"
+  }
+ }
+}

@@ -1,0 +1,18 @@
+[package]
+name = "bench-common"
+description = "Benchmark-binary protocol shared by every Rust benchmark program (mirror of go/internal/harness and go/internal/common)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[features]
+# Count every heap allocation (used only by the separate allocation-profile
+# pass; never enabled for timed runs).
+alloc-stats = []
+# Replace the system allocator (glibc malloc) with mimalloc (tuned track).
+mimalloc = ["dep:mimalloc"]
+
+[dependencies]
+libc.workspace = true
+mimalloc = { workspace = true, optional = true }
+serde_json.workspace = true
