@@ -1,0 +1,1 @@
+{"ok": false, "error": "binary not found: /home/user/go-vs-rust-benchmarks/bin/rust-tuned-allocstats/cpu (run `make build`)", "result": null, "run_id": "20260925T083500Z-native-vm", "mode": "native", "profile": "standard", "category": "cpu", "workload": "cpu.fib.rust-lto", "size": "n35", "lang": "rust", "pass": "allocstats", "flags": ["failed"]}

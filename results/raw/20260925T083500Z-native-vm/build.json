@@ -1,0 +1,904 @@
+{
+ "go/collections": {
+  "path": "bin/go/collections",
+  "bytes": 4197393,
+  "sha256": "931d193da1b1f44bcda789b559d5bfcc28cf32b7529726a6aadf46626ede69d0",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/concurrency": {
+  "path": "bin/go/concurrency",
+  "bytes": 9982266,
+  "sha256": "c618db6cfe2cd18d76d20409bee498045b2988f6c6cd106ff1b24c7fc0983628",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/cpu": {
+  "path": "bin/go/cpu",
+  "bytes": 4464973,
+  "sha256": "6e40b7c53420e40588ca4f9c88ec4c83ac0c460bd8bef244a98c4037a195e2d3",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/hello": {
+  "path": "bin/go/hello",
+  "bytes": 2337993,
+  "sha256": "d5612f1406a5c5f7435940e877ad1650e1008e480c8f8af12a53f16844959af6",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/http": {
+  "path": "bin/go/http",
+  "bytes": 9685933,
+  "sha256": "c93ac13514c0dc55423846d2843046e095a3a1befb3c431e596210ef83af5615",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/http-gin": {
+  "path": "bin/go/http-gin",
+  "bytes": 21516358,
+  "sha256": "a7ccb929289fbb26a7758bb8d1f82463c950d3035540b32eabe8568fc0f46ea0",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/io": {
+  "path": "bin/go/io",
+  "bytes": 4200078,
+  "sha256": "021b4d0a1ab981313ad10307bd7f899da47d585d406830383507004cb37f83e3",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/json": {
+  "path": "bin/go/json",
+  "bytes": 5546577,
+  "sha256": "f64d0e1ef01e90e93cf80c2c5ed90bb48b06f7cd88d6015d04e67359d0960697",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/memory": {
+  "path": "bin/go/memory",
+  "bytes": 4168039,
+  "sha256": "64776981f2cad25472d56fd98197dc0dfebb9b984449f735c89b634a644c9905",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/selftest": {
+  "path": "bin/go/selftest",
+  "bytes": 4145745,
+  "sha256": "e29b32f7925a07422fe5f971f2aeb3d98a89bb964f98ccce5e3f761466e692cc",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go/strings": {
+  "path": "bin/go/strings",
+  "bytes": 4530728,
+  "sha256": "80145bd55187143eb0a7025cb12eac5fd12d3db957d0f2ac5a271199eda13814",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go-legacyjson/json": {
+  "path": "bin/go-legacyjson/json",
+  "bytes": 4773320,
+  "sha256": "8e082fc904dcae8dd013cd5a1d036c490be7239e640e4409ba9bc263c2d922ce",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "go-nogreentea/memory": {
+  "path": "bin/go-nogreentea/memory",
+  "bytes": 4087079,
+  "sha256": "853dfc6156b82b51f3701d33fbd2811433ad151d0b8f0e84683c2f58d09b3f6b",
+  "elf_comment": [],
+  "dynamic": true,
+  "ldd": []
+ },
+ "rust/collections": {
+  "path": "bin/rust/collections",
+  "bytes": 705504,
+  "sha256": "6e21e8e2953590fc1676e424edd743462f7d7c4203ad9f763053b785aa4bb611",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f5c86c05000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f5c86b3f000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f5c86800000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f5c86c07000)"
+  ]
+ },
+ "rust/concurrency": {
+  "path": "bin/rust/concurrency",
+  "bytes": 3577112,
+  "sha256": "555be00679b3b95a8b462fd28098d6f141c2be99d6fbe7b32ca1d98a0c836dbf",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f1cc1b73000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f1cc1b34000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f1cc1717000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f1cc1400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f1cc1b75000)"
+  ]
+ },
+ "rust/cpu": {
+  "path": "bin/rust/cpu",
+  "bytes": 738856,
+  "sha256": "85d284e65029f0cd6223bdb2b97e09c0c37a0f25d9bb5ae60b2aac588bf587c3",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f6e09edf000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f6e09e11000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6e09a00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f6e09ee1000)"
+  ]
+ },
+ "rust/hello": {
+  "path": "bin/rust/hello",
+  "bytes": 458440,
+  "sha256": "c54b2cd6c80218c11cb1a470e2fb51f599c717d4568c1b9782c900c51eda4d7c",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fc00e309000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fc00e272000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fc00e000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fc00e30b000)"
+  ]
+ },
+ "rust/http-actix": {
+  "path": "bin/rust/http-actix",
+  "bytes": 3072496,
+  "sha256": "2946f511c48b0c88a4caf55413e62a8c3035e7f0ad98ee6f47a4826fc3733431",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007eff751d5000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007eff74fbe000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007eff74ed5000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007eff74c00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007eff751d7000)"
+  ]
+ },
+ "rust/http-axum": {
+  "path": "bin/rust/http-axum",
+  "bytes": 1866344,
+  "sha256": "9581b48c5cfc5515443953802cab9493c55405aadc9011a1397eca9a61b9506a",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f943c45a000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f943c2e1000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f943c1f8000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f943be00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f943c45c000)"
+  ]
+ },
+ "rust/io": {
+  "path": "bin/rust/io",
+  "bytes": 671032,
+  "sha256": "e87bcdc029ee6d01cfd1f28bb0684bbdca92271642026b6c232e45a51f0c1bed",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f2d917a6000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2d916e7000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2d91400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f2d917a8000)"
+  ]
+ },
+ "rust/json": {
+  "path": "bin/rust/json",
+  "bytes": 1232968,
+  "sha256": "2fa2ce9f5d50ffac7eb2134096c51fae8d5f51a2f445fdf27385afaa4eb53257",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f7ea95b1000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f7ea9480000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7ea9200000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f7ea95b3000)"
+  ]
+ },
+ "rust/memory": {
+  "path": "bin/rust/memory",
+  "bytes": 655952,
+  "sha256": "a66d7c152b0023c0f787b38e73c2312318de7ae4e0dfcc865e5cc12f9e028cb1",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f0cf9257000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f0cf919b000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f0cf8e00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f0cf9259000)"
+  ]
+ },
+ "rust/selftest": {
+  "path": "bin/rust/selftest",
+  "bytes": 624240,
+  "sha256": "4ae7fa7deacc5bff7005aa66e4eb2cd18a1af07a0350e328e8858bc952397003",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fe098a93000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fe0989dc000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fe098600000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fe098a95000)"
+  ]
+ },
+ "rust/strings": {
+  "path": "bin/rust/strings",
+  "bytes": 3043488,
+  "sha256": "74c432a9f26bb85a3e9e97e6ee19ac17f4c2eba5e3a8d2cdc86ae85162852a8c",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007effe34b8000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007effe3479000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007effe2e00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007effe34ba000)"
+  ]
+ },
+ "rust-allocstats/collections": {
+  "path": "bin/rust-allocstats/collections",
+  "bytes": 724120,
+  "sha256": "8b9e07df55f5663b038762e633c9a2e57456c3cf6db05c99846bd6ae49f25ccc",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f4aba1a4000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f4aba0da000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f4ab9e00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f4aba1a6000)"
+  ]
+ },
+ "rust-allocstats/concurrency": {
+  "path": "bin/rust-allocstats/concurrency",
+  "bytes": 3595712,
+  "sha256": "b41d5bf12bf7069ece566f754356a57b0d53711ad24176412c2c9c3991b0af42",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fa9f19d7000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fa9f1998000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fa9f18af000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fa9f1200000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fa9f19d9000)"
+  ]
+ },
+ "rust-allocstats/cpu": {
+  "path": "bin/rust-allocstats/cpu",
+  "bytes": 757544,
+  "sha256": "4d73891f5fdfcedafe7eaab3f7a40bf87d12ff77e5054c6134d6e113c97c648b",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fcb3984b000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fcb39778000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fcb39400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fcb3984d000)"
+  ]
+ },
+ "rust-allocstats/hello": {
+  "path": "bin/rust-allocstats/hello",
+  "bytes": 458440,
+  "sha256": "f6b809f3988a6688bb34d453271a9cddc74706d36eb285e5d4d3279e616e0e32",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f8dea2f5000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f8dea25e000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f8dea000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f8dea2f7000)"
+  ]
+ },
+ "rust-allocstats/http-actix": {
+  "path": "bin/rust-allocstats/http-actix",
+  "bytes": 3075096,
+  "sha256": "4a336824c0dfce9326e06e607a2b4c69dfd6a88992c27b0e4390f48223c4e7e0",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f5f94f45000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f5f94d2d000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f5f94c44000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f5f94a00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f5f94f47000)"
+  ]
+ },
+ "rust-allocstats/http-axum": {
+  "path": "bin/rust-allocstats/http-axum",
+  "bytes": 1869688,
+  "sha256": "56cb28b370f275df1d726d5ad8f660b0caf4cf658dcdce4282b91c0f8a80ffe5",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007ff5b82fc000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ff5b8182000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ff5b8099000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ff5b7e00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007ff5b82fe000)"
+  ]
+ },
+ "rust-allocstats/io": {
+  "path": "bin/rust-allocstats/io",
+  "bytes": 689752,
+  "sha256": "faafe61de603e45d689b75231010f1c1b756dd65b79d7a363d5c644a778e9e3d",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fbc5f34b000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fbc5f287000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fbc5f000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fbc5f34d000)"
+  ]
+ },
+ "rust-allocstats/json": {
+  "path": "bin/rust-allocstats/json",
+  "bytes": 1251624,
+  "sha256": "3b6b8bc7ff0a461405481b7988980cfef2a5041f33445ac3a30989780b87321b",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f0b5b0f3000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f0b5afbe000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f0b5ac00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f0b5b0f5000)"
+  ]
+ },
+ "rust-allocstats/memory": {
+  "path": "bin/rust-allocstats/memory",
+  "bytes": 674568,
+  "sha256": "e53a921d7b499f1e2c45c38ef1929a97d8b8a95b30f5fb4b58eb74f14b4b5cbb",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fcbff003000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fcbfef42000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fcbfec00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fcbff005000)"
+  ]
+ },
+ "rust-allocstats/selftest": {
+  "path": "bin/rust-allocstats/selftest",
+  "bytes": 642912,
+  "sha256": "0cfa9824e8cb598797a67c26493a9313b362845fd3b34c6fb127940da99f16d2",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f373948c000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f37393d1000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f3739000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f373948e000)"
+  ]
+ },
+ "rust-allocstats/strings": {
+  "path": "bin/rust-allocstats/strings",
+  "bytes": 3062016,
+  "sha256": "befefe53f0bce5c7ea2f322d8475cc4c540e460f20795e0d40315c89245565ef",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f9171eb8000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9171e79000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9171800000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f9171eba000)"
+  ]
+ },
+ "rust-mimalloc/collections": {
+  "path": "bin/rust-mimalloc/collections",
+  "bytes": 865856,
+  "sha256": "f578a1a07b19cc3a343b3d13ab9f3006c2089b424fd20d72f0bca370a65a61ec",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f11dbd14000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f11dbc24000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f11dba00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f11dbd16000)"
+  ]
+ },
+ "rust-mimalloc/concurrency": {
+  "path": "bin/rust-mimalloc/concurrency",
+  "bytes": 3737416,
+  "sha256": "c98e356e7fcf37e53057b6c16d7a6229c374e0da67a93251ae14c9ffda9734ee",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f180647a000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f180643b000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f1806352000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f1805c00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f180647c000)"
+  ]
+ },
+ "rust-mimalloc/cpu": {
+  "path": "bin/rust-mimalloc/cpu",
+  "bytes": 899248,
+  "sha256": "ef696ea46c6f212a1fa65206db6210ba4617cd9bfc7215f1e0f3108a4342afaf",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f5b14337000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f5b1423e000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f5b14000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f5b14339000)"
+  ]
+ },
+ "rust-mimalloc/hello": {
+  "path": "bin/rust-mimalloc/hello",
+  "bytes": 458448,
+  "sha256": "e33b789cf5f9c65166c3405b2663de442a3800cec2d144974b88453fda804651",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fe642cf6000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fe642c5f000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fe642a00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fe642cf8000)"
+  ]
+ },
+ "rust-mimalloc/http-actix": {
+  "path": "bin/rust-mimalloc/http-actix",
+  "bytes": 3239984,
+  "sha256": "d4a5742d16c6de5e2c33dc6f46c11ae0bee7f5a19b1f043053cf5125bd37b8bd",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007fef2473e000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fef246ff000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fef24616000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fef24000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007fef24740000)"
+  ]
+ },
+ "rust-mimalloc/http-axum": {
+  "path": "bin/rust-mimalloc/http-axum",
+  "bytes": 2033696,
+  "sha256": "b0679f8ad34389e9f94c7c5195df82edd5cd7d3b6356b3b8945ea210939f38f1",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f529ef35000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f529ed91000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f529eca8000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f529ea00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f529ef37000)"
+  ]
+ },
+ "rust-mimalloc/io": {
+  "path": "bin/rust-mimalloc/io",
+  "bytes": 831424,
+  "sha256": "a03e767ed79b72db6ce6ef53fcb64d1c3893f44eaff6142587461516716d3c7c",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f1770792000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f17706a8000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f1770400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f1770794000)"
+  ]
+ },
+ "rust-mimalloc/json": {
+  "path": "bin/rust-mimalloc/json",
+  "bytes": 1393464,
+  "sha256": "68b599e66bf0ca1ebc98fa49c07d1d97b12585cd0fec1b665a844db488f98da1",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f7bbfce2000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f7bbfb87000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7bbf800000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f7bbfce4000)"
+  ]
+ },
+ "rust-mimalloc/memory": {
+  "path": "bin/rust-mimalloc/memory",
+  "bytes": 815976,
+  "sha256": "1e2ce84f802229c5bf931443f49505a1eeb95f7e1e267b0bcf33ce7f8d8c6b5d",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f81967ec000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f8196705000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f8196400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f81967ee000)"
+  ]
+ },
+ "rust-mimalloc/selftest": {
+  "path": "bin/rust-mimalloc/selftest",
+  "bytes": 784656,
+  "sha256": "b50871c0b060652f40fdfe7c6cfb93b874421369887dc5788adc82d34036433d",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f491591e000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f491583d000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f4915600000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f4915920000)"
+  ]
+ },
+ "rust-mimalloc/strings": {
+  "path": "bin/rust-mimalloc/strings",
+  "bytes": 3203840,
+  "sha256": "5d9abb271d4b70cb7c3827153bbf97f5d5c46c2bb0e789b5ceaedb49a16f9cc3",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+   "clang version 22.1.0-rc2"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f1215d1f000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f1215ce0000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f1215600000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f1215d21000)"
+  ]
+ },
+ "rust-static/hello": {
+  "path": "bin/rust-static/hello",
+  "bytes": 1415976,
+  "sha256": "4ae956c788b7972003c45004344690adfc799eb18aa1d856f2321117a81b55d7",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": false,
+  "ldd": [
+   "statically linked"
+  ]
+ },
+ "rust-static/http-axum": {
+  "path": "bin/rust-static/http-axum",
+  "bytes": 2890352,
+  "sha256": "61426b52c5aee19f8d8db460321df147ba281801eaa8c30bc9f2e69e1b4486b9",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": false,
+  "ldd": [
+   "statically linked"
+  ]
+ },
+ "rust-tuned/collections": {
+  "path": "bin/rust-tuned/collections",
+  "bytes": 547152,
+  "sha256": "64e2f7b5338cbcdec76c6ddae9931200e529aa7c870733b42bb5fc9afc6dba30",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f11ef297000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f11ef1e7000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f11eee00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f11ef299000)"
+  ]
+ },
+ "rust-tuned/concurrency": {
+  "path": "bin/rust-tuned/concurrency",
+  "bytes": 1895352,
+  "sha256": "586b4240f34c9d17ce4a11597a25c2f5585692c36fa9647a1244f56071fea08a",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007ffb909e8000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ffb9082d000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007ffb90744000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007ffb90400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007ffb909ea000)"
+  ]
+ },
+ "rust-tuned/cpu": {
+  "path": "bin/rust-tuned/cpu",
+  "bytes": 579672,
+  "sha256": "8eb3c461f31cdd7baec3cb89d0e21b1d18c65dfafda8a4ce261ea6770d24b13a",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007efe5a586000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007efe5a4cd000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007efe5a200000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007efe5a588000)"
+  ]
+ },
+ "rust-tuned/hello": {
+  "path": "bin/rust-tuned/hello",
+  "bytes": 378576,
+  "sha256": "c11e7aa1ce9e2a7789b9e0acb533b7b16d3586ffcec90c281f871b21bdfb426e",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f7609ea6000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f7609e19000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7609c00000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f7609ea8000)"
+  ]
+ },
+ "rust-tuned/http-actix": {
+  "path": "bin/rust-tuned/http-actix",
+  "bytes": 1378520,
+  "sha256": "82e1545ca623b848f163934b75ad00b71db272a555cb2ad104a2f37ea7521fec",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f48d68da000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f48d6791000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f48d66a8000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f48d6400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f48d68dc000)"
+  ]
+ },
+ "rust-tuned/http-axum": {
+  "path": "bin/rust-tuned/http-axum",
+  "bytes": 1025024,
+  "sha256": "2e4a10de878919b089ef74a26fd385d45c9fc2c0f0b56b12666baf1ead11fe68",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f2c156ed000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2c155df000)",
+   "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2c154f6000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2c15200000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f2c156ef000)"
+  ]
+ },
+ "rust-tuned/io": {
+  "path": "bin/rust-tuned/io",
+  "bytes": 518144,
+  "sha256": "c2f37eecb5d8b0b901da7aa3c888fd3f717de46db798156d1d2c7bc37f3c02e4",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f29ee3eb000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f29ee340000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f29ee000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f29ee3ed000)"
+  ]
+ },
+ "rust-tuned/json": {
+  "path": "bin/rust-tuned/json",
+  "bytes": 1070264,
+  "sha256": "ef2c3103d0c69b32311d6da7aa1c7f8017ac9511d2783055ea5cf3e047a70173",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007feabdc75000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007feabdb4d000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007feabd800000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007feabdc77000)"
+  ]
+ },
+ "rust-tuned/memory": {
+  "path": "bin/rust-tuned/memory",
+  "bytes": 499800,
+  "sha256": "812d955c68ebccd61e5a03f1cf3b6721fbadb5fab4b1e0a506e70961c6605d8b",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f5e273e6000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f5e2733f000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f5e27000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f5e273e8000)"
+  ]
+ },
+ "rust-tuned/selftest": {
+  "path": "bin/rust-tuned/selftest",
+  "bytes": 482400,
+  "sha256": "06d44ab5228b485d44ce5e60b6eccd8f260115f04b8da9150aa795de9cbf6c70",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f2bde479000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f2bde3d6000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2bde000000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f2bde47b000)"
+  ]
+ },
+ "rust-tuned/strings": {
+  "path": "bin/rust-tuned/strings",
+  "bytes": 2130680,
+  "sha256": "43d712cf3b85355b3d36d5ae778c56eb2105a8c9301260e6d3fa40e6f7b87ba3",
+  "elf_comment": [
+   "Linker: LLD 22.1.8 (/checkout/src/llvm-project/llvm 52ed14fcd56afc30f9cccd8ca8ce237c2eef7e04)",
+   "rustc version 1.98.1 (48a229cea 2026-09-01)",
+   "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+  ],
+  "dynamic": true,
+  "ldd": [
+   "linux-vdso.so.1 (0x00007f75d29d0000)",
+   "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f75d27be000)",
+   "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f75d2400000)",
+   "/lib64/ld-linux-x86-64.so.2 (0x00007f75d29d2000)"
+  ]
+ }
+}

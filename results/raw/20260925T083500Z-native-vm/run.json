@@ -1,0 +1,17 @@
+{
+ "run_id": "20260925T083500Z-native-vm",
+ "mode": "native",
+ "invocations": [
+  {
+   "kind": "harness",
+   "profile": "standard",
+   "categories": [
+    "cpu"
+   ],
+   "ids": null,
+   "started_at": "2026-09-25T08:38:57+00:00",
+   "finished_at": "2026-09-25T09:20:23+00:00"
+  }
+ ],
+ "profile": "standard"
+}
