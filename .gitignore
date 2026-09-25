@@ -22,3 +22,6 @@ __pycache__/
 .idea/
 .vscode/
 *.swp
+
+# Per-sample table: large, regenerated from results/raw by `make process`
+/results/processed/*/samples.csv

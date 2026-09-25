@@ -84,9 +84,40 @@ image that contains both toolchains. Container results are stored with
 `mode=container` and are **never** compared with native results. See
 [docker/README.md](docker/README.md).
 
+## Results
+
+The reference run (standard profile, native mode, on a 4-vCPU cloud VM) is
+in [REPORT.md](REPORT.md), with charts in
+[`charts/native-latest/`](charts/native-latest/), processed tables in
+[`results/processed/native-latest/`](results/processed/native-latest/) (all but the
+per-sample `samples.csv`, which is about 300 MB; `make process` regenerates it) and
+every raw measurement in `results/raw/20260925T083500Z-native-vm/`.
+
+The short version is that there is no single winner. In this setup:
+- **Rust was ahead** on:
+  - tight numeric code
+  - JSON with the standard libraries
+  - HTTP throughput per core
+  - memory footprint
+  - binary size
+- **Go was ahead** on:
+  - channel-based message passing
+  - line scanning
+  - bulk allocation with the default Rust allocator
+  - build time
+  - CLI startup
+- **Library choices** (hasher, JSON library, allocator) moved several results
+  as much as the language did.
+
+The report keeps the numbers separate from interpretation and names the
+conditions each result depends on.
+
 ## Status
 
-| Category | Status |
+| Component | Status |
 |---|---|
 | Harness, orchestrator, statistics, datasets | done |
-| CPU, memory, JSON, HTTP, concurrency, file I/O, strings, collections, startup, binary size, compilation | implemented |
+| All 11 benchmark categories, with cross-language validation | done |
+| Docker image and container mode | done (the reference run is native only) |
+| Charts, report generator, CI correctness workflow | done |
+| Reference run and REPORT.md | done (`20260925T083500Z-native-vm`) |
