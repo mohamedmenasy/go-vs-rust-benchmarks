@@ -790,14 +790,52 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 
 ### 13.11 Compilation
 
-- **Scenarios:** clean build, no-op rebuild, and a one-file change (a
-  constant toggles in a leaf file).
-- **Offline:** builds run with prefetched dependencies.
-- **Asymmetries, documented:**
-  - Rust ships a precompiled standard library, while `go clean -cache` makes
-    Go rebuild its standard library.
-  - Cargo's release profile is not incremental. The Rust dev profile and
-    `cargo check` form a separate developer-iteration track.
+- **Targets.**
+  - `hello`
+  - the primary HTTP server: net/http vs Axum, Tokio and serde_json
+  - the whole suite: `go build ./...` vs `cargo build --workspace`
+- **Tracks.**
+  - `release`: `go build -trimpath` (the benchmarked flags) vs
+    `cargo build --release`.
+  - `dev`: the same Go build vs `cargo build` with the dev profile
+    (opt-level 0, incremental). Go has only one build mode.
+  - `check`: `cargo check` only, which is Rust's type-and-borrow-check loop
+    without code generation. Go has no equivalent command, so this track is
+    informational and Rust-only.
+- **Scenarios.** hyperfine `--prepare` restores the starting state before
+  every timed run.
+  - `clean`:
+    - Go: empty `GOCACHE`, equivalent to `go clean -cache`, so the standard
+      library is compiled again.
+    - Rust: empty target directory. Rust's standard library ships
+      precompiled.
+  - `clean-std-cached`: `GOCACHE` holds only the precompiled Go standard
+    library, which removes the asymmetry above. Rust is the same as `clean`.
+  - `noop`: rebuild with nothing changed.
+  - `edit`: one constant in one source file is rewritten to a value it has
+    **never had before**.
+    - Go's build cache is content-addressed, so flipping between two values
+      would turn into cache hits from the third build on.
+    - A guard (`go build -x`) checks that an edit really recompiles.
+    - Which file is edited:
+      - `hello`: the main file
+      - `http`: the shared API package or crate (score rounds)
+      - suite: the shared harness library that every benchmark program
+        depends on
+- **Isolation and offline builds.**
+  - Builds run in a private copy of `go/` and `rust/` under
+    `scratch/compile/`, with their own `GOCACHE` and `CARGO_TARGET_DIR`.
+  - Downloaded dependencies (`GOMODCACHE`, `~/.cargo/registry`) stay in
+    place on both sides; network access is off (`GOPROXY=off`,
+    `-mod=readonly`, `cargo --offline --locked`).
+  - Builds use all cores (`taskset 0-3`) at each tool's default parallelism.
+- **Repetitions.** Rounds alternate the language order. Each round is one
+  hyperfine invocation with 2 runs; standard profile: 5 rounds. The unit of
+  comparison is the per-round median.
+- **Peak compiler memory.** `/usr/bin/time` wraps each build and reports the
+  maximum RSS of the largest single process in the build tree (for example
+  `compile`/`link`, or `rustc`), not the sum across processes.
+- **Build CPU time.** User plus system CPU of the whole tree.
 
 ## 14. Native vs containerized runs
 

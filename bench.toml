@@ -1458,3 +1458,69 @@ cores = "compile"
 desc = "On-disk size, size after GNU strip, ELF sections, linking and dependency footprint of every benchmark program, for several build recipes per language."
 notes = "Not a timing benchmark; one deterministic measurement per binary. Builds use -trimpath (Go) and --locked (Rust)."
 sizes = [{ label = "all", profiles = ["quick", "standard", "full"] }]
+
+# =========================================================================== compilation
+# Driver: scripts/benchctl/compile.py. hyperfine --prepare; builds in a private
+# source copy under scratch/compile/, offline, all cores.
+
+[compile.quick]
+rounds = 1
+runs_per_round = 2
+
+[compile.standard]
+rounds = 5
+runs_per_round = 2
+
+[compile.full]
+rounds = 10
+runs_per_round = 2
+
+[[workload]]
+id = "compile.hello"
+category = "compile"
+kind = "compile"
+cores = "compile"
+desc = "Build the hello CLI: go build vs cargo build --release. Scenarios: clean, clean with Go std precompiled, no-op, one-constant edit."
+extra = { target = "hello", build_track = "release" }
+sizes = [{ label = "hello", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "compile.http"
+category = "compile"
+kind = "compile"
+cores = "compile"
+desc = "Build the primary HTTP server (net/http vs Axum + Tokio + serde_json): go build vs cargo build --release. Edit: the score-rounds constant in the shared API package/crate."
+extra = { target = "http", build_track = "release" }
+sizes = [{ label = "http", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "compile.suite"
+category = "compile"
+kind = "compile"
+cores = "compile"
+desc = "Build every program of the suite (go build ./... vs cargo build --release --workspace). Edit: a constant in the shared harness library that every benchmark program depends on."
+extra = { target = "suite", build_track = "release" }
+sizes = [{ label = "suite", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "compile.http-dev"
+category = "compile"
+kind = "compile"
+track = "idiomatic"
+variant_of = "compile.http"
+cores = "compile"
+desc = "Developer iteration: go build vs cargo build (dev profile: opt-level 0, incremental). Go has one build mode, so its side is the same build as compile.http."
+extra = { target = "http", build_track = "dev", scenarios = ["clean", "noop", "edit"] }
+sizes = [{ label = "http", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "compile.http-check"
+category = "compile"
+kind = "compile"
+track = "idiomatic"
+variant_of = "compile.http"
+langs = ["rust"]
+cores = "compile"
+desc = "Rust-only: cargo check (type/borrow check without code generation), the usual editor feedback loop. Go has no equivalent command; informational."
+extra = { target = "http", build_track = "check", scenarios = ["clean", "noop", "edit"] }
+sizes = [{ label = "http", profiles = ["quick", "standard", "full"] }]

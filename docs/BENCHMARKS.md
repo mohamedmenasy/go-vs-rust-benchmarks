@@ -1307,3 +1307,55 @@ On-disk size, size after GNU strip, ELF sections, linking and dependency footpri
 - **CPU pinning:** `compile` → cores `0-3`
 - **Sizes:** `all` (quick/standard/full)
 - **Driver:** `scripts/benchctl` category `binsize` (see METHODOLOGY.md)
+
+## 11. Compilation
+
+### `compile.hello`
+
+Build the hello CLI: go build vs cargo build --release. Scenarios: clean, clean with Go std precompiled, no-op, one-constant edit.
+
+- **Implementations:** go: `hello` in `go/compile/`, rust: `hello` in `rust/compile/`
+- **Track:** `baseline`
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `hello` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `compile` (see METHODOLOGY.md)
+
+### `compile.http`
+
+Build the primary HTTP server (net/http vs Axum + Tokio + serde_json): go build vs cargo build --release. Edit: the score-rounds constant in the shared API package/crate.
+
+- **Implementations:** go: `http` in `go/compile/`, rust: `http` in `rust/compile/`
+- **Track:** `baseline`
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `http` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `compile` (see METHODOLOGY.md)
+
+### `compile.suite`
+
+Build every program of the suite (go build ./... vs cargo build --release --workspace). Edit: a constant in the shared harness library that every benchmark program depends on.
+
+- **Implementations:** go: `suite` in `go/compile/`, rust: `suite` in `rust/compile/`
+- **Track:** `baseline`
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `suite` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `compile` (see METHODOLOGY.md)
+
+### `compile.http-dev`
+
+Developer iteration: go build vs cargo build (dev profile: opt-level 0, incremental). Go has one build mode, so its side is the same build as compile.http.
+
+- **Implementations:** go: `http-dev` in `go/compile/`, rust: `http-dev` in `rust/compile/`
+- **Track:** `idiomatic` (variant of `compile.http`)
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `http` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `compile` (see METHODOLOGY.md)
+
+### `compile.http-check`
+
+Rust-only: cargo check (type/borrow check without code generation), the usual editor feedback loop. Go has no equivalent command; informational.
+
+- **Implementations:** rust: `http-check` in `rust/compile/`
+- **Track:** `idiomatic` (variant of `compile.http`)
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `http` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `compile` (see METHODOLOGY.md)
