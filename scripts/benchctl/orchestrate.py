@@ -220,6 +220,11 @@ def _rounds_and_alloc_pass(spec, profile, run_id, mode, items, total_rounds, max
         for w, size in items:
             if not w.alloc_pass or "rust" not in w.langs:
                 continue
+            # Allocation counts come from the stock build only: flavoured builds
+            # (LTO, mimalloc) allocate the same objects, and a counting global
+            # allocator cannot wrap mimalloc anyway.
+            if w.flavor_for("rust"):
+                continue
             path = base / w.category / w.id / size.label / "rust-allocstats.json"
             if resume and path.exists():
                 continue
