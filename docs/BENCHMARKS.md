@@ -1245,3 +1245,51 @@ coll.map-string with Rust HashMap/HashSet using foldhash 0.2 (a fast non-cryptog
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/collections run map-string --param n=1000000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust/collections run map-string-foldhash --param n=1000000 --param input=datasets/text/corpus-10MiB.txt --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 9. Startup time
+
+### `startup.hello`
+
+Minimal CLI: print one line and exit (fmt.Println vs println!). Measures exec -> exit with hyperfine -N (no shell).
+
+*Notes:* Go binary is statically linked (CGO_ENABLED=0); Rust binary is dynamically linked against glibc (stock target). See startup.hello-static for the static Rust build.
+
+- **Implementations:** go: `hello` in `go/startup/`, rust: `hello` in `rust/startup/`
+- **Track:** `baseline`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `hello` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `startup` (see METHODOLOGY.md)
+
+### `startup.hello-static`
+
+As startup.hello, with Rust linked statically (-C target-feature=+crt-static, static-pie) so both binaries skip the dynamic loader.
+
+- **Implementations:** go: `hello` in `go/startup/`, rust: `hello` in `rust/startup/`
+- **Track:** `tuned` (variant of `startup.hello`)
+- **Build flavor:** rust: `static`
+- **CPU pinning:** `single` → cores `3`
+- **Sizes:** `hello` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `startup` (see METHODOLOGY.md)
+
+### `startup.http-ttfr`
+
+HTTP server time-to-first-response: exec -> first 200 from GET /health, then the first GET /users/42 on the cold process. Go net/http vs Rust Axum.
+
+*Notes:* Readiness polled in a tight connect loop from the harness core; each poll costs ~0.1 ms, which bounds the resolution.
+
+- **Implementations:** go: `http` in `go/startup/`, rust: `http-axum` in `rust/startup/`
+- **Track:** `baseline`
+- **CPU pinning:** `http_server` → cores `2-3`
+- **Sizes:** `server` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `startup` (see METHODOLOGY.md)
+
+### `startup.http-ttfr-static`
+
+As startup.http-ttfr with the Rust server linked statically (crt-static).
+
+- **Implementations:** go: `http` in `go/startup/`, rust: `http-axum` in `rust/startup/`
+- **Track:** `tuned` (variant of `startup.http-ttfr`)
+- **Build flavor:** rust: `static`
+- **CPU pinning:** `http_server` → cores `2-3`
+- **Sizes:** `server` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `startup` (see METHODOLOGY.md)

@@ -3,13 +3,15 @@
 #
 #   scripts/build.sh go   <bin>...    -> bin/go/<bin>
 #   scripts/build.sh rust <bin>...    -> bin/rust/<bin>, bin/rust-allocstats/<bin>,
-#                                        bin/rust-tuned/<bin>, bin/rust-mimalloc/<bin>
+#                                        bin/rust-tuned/<bin>, bin/rust-mimalloc/<bin>,
+#                                        bin/rust-static/<bin> (hello, http-axum only)
 #
 # Go:   CGO_ENABLED=0 GOAMD64=v1 go build -trimpath -buildvcs=false
 # Rust: cargo build --release --locked (profile.release in rust/Cargo.toml)
 #       allocstats: + --features alloc-stats   (allocation-profile pass only)
 #       tuned:      --profile release-tuned    (tuned track only)
 #       mimalloc:   + --features mimalloc      (tuned track only)
+#       static:     RUSTFLAGS=-Ctarget-feature=+crt-static (startup/binsize variants)
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 lang="${1:?usage: build.sh go|rust <bin>...}"
@@ -58,6 +60,23 @@ rust)
 			cp -f "$outdir/$b" "$dest/$b"
 		done
 	done
+	# Statically linked glibc (crt-static) for the startup/size comparison
+	# with Go's static binaries: only the programs those categories use.
+	target="$(rustc -vV | sed -n 's/^host: //p')"
+	static_bins=()
+	for b in "$@"; do
+		case "$b" in hello | http-axum) static_bins+=("$b") ;; esac
+	done
+	if [ ${#static_bins[@]} -gt 0 ]; then
+		pkgs=()
+		for b in "${static_bins[@]}"; do pkgs+=(-p "bench-$b"); done
+		RUSTFLAGS="-C target-feature=+crt-static" cargo build --locked --release --target "$target" \
+			--target-dir target/flavor-static "${pkgs[@]}"
+		mkdir -p "$ROOT/bin/rust-static"
+		for b in "${static_bins[@]}"; do
+			cp -f "target/flavor-static/$target/release/$b" "$ROOT/bin/rust-static/$b"
+		done
+	fi
 	;;
 *)
 	echo "unknown language: $lang" >&2

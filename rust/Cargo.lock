@@ -303,6 +303,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "bench-hello"
+version = "0.1.0"
+
+[[package]]
 name = "bench-http-actix"
 version = "0.1.0"
 dependencies = [

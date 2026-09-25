@@ -705,12 +705,45 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 
 ### 13.9 Startup
 
-- **CLI:** a tiny CLI is measured with `hyperfine -N` (no intermediate shell)
-  in alternating rounds.
-- **HTTP server:** the measure is time from `exec` to the first successful
-  response.
-- **Warm page cache:** binaries are in the page cache.
-- **Reported:** mean, median, p95 and standard deviation.
+- **Programs.** `go/hello` and `rust/hello` print one constant line
+  (`fmt.Println` vs `println!`) and exit. Validation requires both to
+  print exactly `hello\n` with exit status 0.
+- **Linking.** Go builds with `CGO_ENABLED=0`, so its binary is static.
+  The stock Rust binary is a dynamically linked PIE, and every start pays
+  for the `ld.so` dynamic loader and glibc relocations. The
+  `startup.*-static` variants (track `tuned`) link Rust with
+  `-C target-feature=+crt-static` (a static-pie binary) so the two
+  languages can be compared without that cost. The binaries are built by
+  `scripts/build.sh` into `bin/rust-static/`.
+- **CLI (`startup.hello`).**
+  - Measured as `hyperfine -N` (fork+exec to exit, no shell), with
+    `--warmup 20` and output discarded.
+  - hyperfine is started under `taskset -c <single core>` and the child
+    inherits that mask, so `taskset` itself is not in the timed path.
+  - hyperfine finishes one command before starting the next, so
+    interleaving comes from **rounds**. Each round is one hyperfine
+    invocation per language, in seeded random order. Standard profile:
+    10 rounds of 100 runs, 1000 starts per language.
+  - The unit of comparison is the per-round median, so rounds are
+    independent groups.
+- **HTTP time to first response (`startup.http-ttfr`).**
+  - A Python launcher on the harness core starts the server. The server's
+    CPU mask is set between fork and exec.
+  - Time zero is when `Popen` returns. With `preexec_fn`, Python returns
+    only after `exec` has succeeded, so the launcher's own fork cost
+    (`spawn_ms`, recorded) is excluded.
+  - The launcher then polls `GET /health` over fresh connections in a tight
+    loop until it gets a 200 (`health_ms`), then sends one
+    `GET /users/42` (`first_request_ms`: the first real request on a cold
+    process). Each poll costs about 0.1–0.2 ms, which sets the resolution.
+  - Languages alternate in random order for every start. Each start is an
+    independent process and is the unit of comparison.
+  - Also recorded: the server's VmHWM and thread count right after the
+    first response.
+- **Page cache.** Binaries are warm in the page cache. Cold-start from disk
+  is not measured.
+- **Reported.** Mean, median, min, max, standard deviation and
+  p50/p95/p99, with the ratio of medians and its bootstrap CI.
 
 ### 13.10 Binary size
 

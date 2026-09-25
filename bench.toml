@@ -1352,3 +1352,75 @@ desc = "coll.map-string with Rust HashMap/HashSet using foldhash 0.2 (a fast non
 sizes = [
   { label = "1M", n = 1_000_000, input = "text/corpus-10MiB.txt", profiles = ["standard", "full"] },
 ]
+
+# =========================================================================== startup
+# Driver: scripts/benchctl/startup.py. `cli` = hyperfine -N (exec -> exit);
+# `ttfr` = exec -> first 200 from GET /health (plus the first /users/42).
+
+[startup]
+port = 18090
+timeout_s = 10.0
+cli_warmup = 20
+
+[startup.quick]
+cli_runs = 100
+cli_batch = 50
+ttfr_runs = 30
+
+[startup.standard]
+cli_runs = 1000
+cli_batch = 100
+ttfr_runs = 300
+
+[startup.full]
+cli_runs = 3000
+cli_batch = 200
+ttfr_runs = 1000
+
+[[workload]]
+id = "startup.hello"
+category = "startup"
+kind = "startup"
+impl = { go = "hello", rust = "hello" }
+cores = "single"
+desc = "Minimal CLI: print one line and exit (fmt.Println vs println!). Measures exec -> exit with hyperfine -N (no shell)."
+notes = "Go binary is statically linked (CGO_ENABLED=0); Rust binary is dynamically linked against glibc (stock target). See startup.hello-static for the static Rust build."
+extra = { test = "cli" }
+sizes = [{ label = "hello", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "startup.hello-static"
+category = "startup"
+kind = "startup"
+track = "tuned"
+variant_of = "startup.hello"
+impl = { go = "hello", rust = "hello" }
+flavor = { rust = "static" }
+cores = "single"
+desc = "As startup.hello, with Rust linked statically (-C target-feature=+crt-static, static-pie) so both binaries skip the dynamic loader."
+extra = { test = "cli" }
+sizes = [{ label = "hello", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "startup.http-ttfr"
+category = "startup"
+kind = "startup"
+impl = { go = "http", rust = "http-axum" }
+cores = "http_server"
+desc = "HTTP server time-to-first-response: exec -> first 200 from GET /health, then the first GET /users/42 on the cold process. Go net/http vs Rust Axum."
+notes = "Readiness polled in a tight connect loop from the harness core; each poll costs ~0.1 ms, which bounds the resolution."
+extra = { test = "ttfr" }
+sizes = [{ label = "server", profiles = ["quick", "standard", "full"] }]
+
+[[workload]]
+id = "startup.http-ttfr-static"
+category = "startup"
+kind = "startup"
+track = "tuned"
+variant_of = "startup.http-ttfr"
+impl = { go = "http", rust = "http-axum" }
+flavor = { rust = "static" }
+cores = "http_server"
+desc = "As startup.http-ttfr with the Rust server linked statically (crt-static)."
+extra = { test = "ttfr" }
+sizes = [{ label = "server", profiles = ["quick", "standard", "full"] }]

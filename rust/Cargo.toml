@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["collections", "common", "concurrency", "cpu", "http-actix", "http-axum", "http-common", "io", "json", "memory", "selftest", "strings"]
+members = ["collections", "common", "concurrency", "cpu", "hello", "http-actix", "http-axum", "http-common", "io", "json", "memory", "selftest", "strings"]
 
 [workspace.package]
 version = "0.1.0"
@@ -46,3 +46,13 @@ inherits = "release"
 lto = "fat"
 codegen-units = 1
 panic = "abort"
+
+# Binary-size track only: optimise for size, whole-program LTO, no unwinding,
+# stripped symbols (a common recipe for small Rust binaries).
+[profile.release-size]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"

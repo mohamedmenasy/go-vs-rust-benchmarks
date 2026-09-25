@@ -22,7 +22,13 @@ def _http_parity(spec: Spec, profile: str) -> bool:
     return http.validate_parity(spec, profile)
 
 
-EXTRA_VALIDATORS: dict[str, Callable[[Spec, str], bool]] = {"http": _http_parity}
+def _startup_output(spec: Spec, profile: str) -> bool:
+    from . import startup
+
+    return startup.validate(spec, profile)
+
+
+EXTRA_VALIDATORS: dict[str, Callable[[Spec, str], bool]] = {"http": _http_parity, "startup": _startup_output}
 
 
 def compare(results: dict[str, dict]) -> list[str]:
