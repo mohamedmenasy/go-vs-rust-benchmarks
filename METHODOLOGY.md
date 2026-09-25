@@ -747,11 +747,46 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
 
 ### 13.10 Binary size
 
-- **Builds measured:** default and stripped (`-ldflags="-s -w"` in Go,
-  `strip=symbols` in Rust), plus the tuned (LTO) and static (`crt-static`)
-  Rust variants.
-- **Recorded:** GNU `strip` size, dynamic dependencies and the dependency
-  footprint.
+- **Programs.** `hello`, the HTTP servers (net/http vs Axum, Gin vs Actix
+  Web), `json`, and every other category binary. The list is in
+  `[binsize]` in `bench.toml`.
+- **Build recipes.** The size-only variants are built into `bin/binsize/`
+  and `rust/target/`.
+
+  | Language | Variant | Recipe |
+  |---|---|---|
+  | Go | `default` | the benchmarked build: `CGO_ENABLED=0 go build -trimpath` (static) |
+  | Go | `stripped` | the same, plus `-ldflags="-s -w"` (no symbol table or DWARF) |
+  | Go | `cgo` | `CGO_ENABLED=1` (`hello`, `http`) |
+  | Rust | `default` | the benchmarked stock release build (dynamic glibc, with symbols) |
+  | Rust | `strip` | the same, with `profile.release.strip = "symbols"` |
+  | Rust | `tuned` | `release-tuned`: fat LTO, `codegen-units = 1`, `panic = "abort"` |
+  | Rust | `size` | `release-size`: `opt-level = "z"` + tuned + `strip` |
+  | Rust | `static` | `-C target-feature=+crt-static` (`hello`, `http`) |
+
+  - Go's `cgo` build links libc only when a package actually uses cgo.
+    `net` does, `fmt` does not, so `hello` stays static.
+- **Pairs compared.**
+  - default ↔ default
+  - stripped ↔ strip
+  - Go default ↔ Rust static: both are self-contained, with no runtime
+    dependency on system libraries
+  - Go stripped ↔ Rust size: the smallest common recipe in each language
+- **Metrics.**
+  - on-disk bytes
+  - bytes after GNU `strip` of a copy, which puts both languages on the
+    same symbol policy
+  - `size` text/data/bss
+  - linking, from `file`, and the `ldd` library list
+- **Dependency footprint.**
+  - Go: `go list -deps` packages, split into std and non-std, and the
+    non-main modules.
+  - Rust: the unique external crates in `cargo tree -e normal`.
+  - Standard libraries are not counted on either side.
+  - These counts say what a program pulls in. They do not measure supply-chain
+    risk or compile cost.
+- **Not timed.** Each binary is measured once; builds with `-trimpath` and
+  `--locked` are deterministic, and the SHA-256 is recorded.
 
 ### 13.11 Compilation
 

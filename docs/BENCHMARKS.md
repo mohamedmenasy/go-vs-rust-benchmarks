@@ -1293,3 +1293,17 @@ As startup.http-ttfr with the Rust server linked statically (crt-static).
 - **CPU pinning:** `http_server` → cores `2-3`
 - **Sizes:** `server` (quick/standard/full)
 - **Driver:** `scripts/benchctl` category `startup` (see METHODOLOGY.md)
+
+## 10. Binary size
+
+### `binsize.programs`
+
+On-disk size, size after GNU strip, ELF sections, linking and dependency footprint of every benchmark program, for several build recipes per language.
+
+*Notes:* Not a timing benchmark; one deterministic measurement per binary. Builds use -trimpath (Go) and --locked (Rust).
+
+- **Implementations:** go: `programs` in `go/binsize/`, rust: `programs` in `rust/binsize/`
+- **Track:** `baseline`
+- **CPU pinning:** `compile` → cores `0-3`
+- **Sizes:** `all` (quick/standard/full)
+- **Driver:** `scripts/benchctl` category `binsize` (see METHODOLOGY.md)

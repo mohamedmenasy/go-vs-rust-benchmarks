@@ -1424,3 +1424,37 @@ cores = "http_server"
 desc = "As startup.http-ttfr with the Rust server linked statically (crt-static)."
 extra = { test = "ttfr" }
 sizes = [{ label = "server", profiles = ["quick", "standard", "full"] }]
+
+# =========================================================================== binary size
+# Driver: scripts/benchctl/binsize.py. Deterministic; measured once per variant.
+
+[binsize]
+programs = [
+  { name = "hello", go = "hello", rust = "hello" },
+  { name = "http", go = "http", rust = "http-axum" },
+  { name = "http-framework", go = "http-gin", rust = "http-actix" },
+  { name = "json", go = "json", rust = "json" },
+  { name = "cpu", go = "cpu", rust = "cpu" },
+  { name = "memory", go = "memory", rust = "memory" },
+  { name = "concurrency", go = "concurrency", rust = "concurrency" },
+  { name = "io", go = "io", rust = "io" },
+  { name = "strings", go = "strings", rust = "strings" },
+  { name = "collections", go = "collections", rust = "collections" },
+]
+cgo_programs = ["hello", "http"]
+# Go variant <-> Rust variant compared in the report.
+pairs = [
+  { label = "default release build", go = "default", rust = "default" },
+  { label = "symbols stripped", go = "stripped", rust = "strip" },
+  { label = "static, fully linked", go = "default", rust = "static" },
+  { label = "smallest recipe", go = "stripped", rust = "size" },
+]
+
+[[workload]]
+id = "binsize.programs"
+category = "binsize"
+kind = "binsize"
+cores = "compile"
+desc = "On-disk size, size after GNU strip, ELF sections, linking and dependency footprint of every benchmark program, for several build recipes per language."
+notes = "Not a timing benchmark; one deterministic measurement per binary. Builds use -trimpath (Go) and --locked (Rust)."
+sizes = [{ label = "all", profiles = ["quick", "standard", "full"] }]
