@@ -279,5 +279,55 @@ def cpu_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- memory
+
+def _u64_sum(v: np.ndarray) -> int:
+    return int(v.sum(dtype=np.uint64)) & R.MASK64
+
+
+def mem_bytes(words: int, seed: int) -> int:
+    return int(np.bitwise_xor.reduce(R.splitmix64_np(seed, 0, words)))
+
+
+def mem_objects(n: int, seed: int) -> int:
+    z = R.splitmix64_np(seed, 0, n)
+    with np.errstate(over="ignore"):
+        return _u64_sum(z ^ (z + np.uint64(7)))
+
+
+def mem_trees(max_depth: int, min_depth: int = 4) -> int:
+    nodes = lambda d: (1 << (d + 1)) - 1  # noqa: E731 - check() of a full tree of depth d
+    d = R.Digest()
+    d.add(nodes(max_depth + 1))
+    for depth in range(min_depth, max_depth + 1, 2):
+        iters = 1 << (max_depth - depth + min_depth)
+        d.add(iters)
+        d.add(depth)
+        d.add(iters * nodes(depth))
+    d.add(nodes(max_depth))
+    return d.sum()
+
+
+def mem_churn(n: int, k: int, seed: int) -> tuple[int, int]:
+    g = R.SplitMix64(seed)
+    acc = 0
+    for _ in range(k):
+        i = g.below(n)
+        acc = (acc + (i ^ (i + 7))) & R.MASK64
+    check = sum(i ^ (i + 7) for i in range(n)) & R.MASK64
+    return acc, check
+
+
+def memory_section() -> dict:
+    h = R.hexu64
+    churn_run, churn_check = mem_churn(1000, 1000, 7)
+    return {
+        "bytes": {"words": 1000, "seed": 5, "run": h(mem_bytes(1000, 5))},
+        "objects": {"n": 1000, "seed": 6, "run": h(mem_objects(1000, 6))},
+        "binarytrees": [{"depth": d, "run": h(mem_trees(d))} for d in (4, 6, 10)],
+        "churn": {"n": 1000, "replace": 1000, "seed": 7, "run": h(churn_run), "check": h(churn_check)},
+    }
+
+
 def sections() -> dict:
-    return {"cpu": cpu_section()}
+    return {"cpu": cpu_section(), "memory": memory_section()}

@@ -328,3 +328,199 @@ cpu.csvparse with Rust built using the release-tuned profile (fat LTO, codegen-u
 - **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
 - **Command (go):** `taskset -c 3 bin/go/cpu run csvparse --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
 - **Command (rust):** `taskset -c 3 bin/rust-tuned/cpu run csvparse --param input=datasets/csv/requests-100MiB.csv --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+## 2. Memory
+
+### `mem.bytes`
+
+Allocate one contiguous buffer, fill it with SplitMix64 words, fold it, release it.
+
+*Notes:* Go's make() zero-initialises by language definition; the Rust version collects into a fresh Vec without zeroing. glibc serves these sizes with mmap/munmap per iteration; Go reuses its heap after GC.
+
+- **Implementations:** go: `bytes` in `go/memory/`, rust: `bytes` in `rust/memory/`
+- **Track:** `baseline`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `100MiB` (quick/standard/full); `500MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥0 ms; measure ≥2 iters & ≥0 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run bytes --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run bytes --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-boxed`
+
+Allocate bytes/64 individually heap-allocated 64-byte objects held by a slice/Vec of pointers, read them, release them (Go: garbage for the GC; Rust: Box drops).
+
+- **Implementations:** go: `objects-boxed` in `go/memory/`, rust: `objects-boxed` in `rust/memory/`
+- **Track:** `baseline`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `100MiB` (quick/standard/full); `500MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥0 ms; measure ≥2 iters & ≥0 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run objects-boxed --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run objects-boxed --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-inline`
+
+The same 64-byte objects stored by value in one slice/Vec: one allocation, contiguous layout.
+
+- **Implementations:** go: `objects-inline` in `go/memory/`, rust: `objects-inline` in `rust/memory/`
+- **Track:** `baseline`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `100MiB` (quick/standard/full); `500MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥0 ms; measure ≥2 iters & ≥0 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run objects-inline --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run objects-inline --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.binarytrees`
+
+Benchmarks Game binary-trees (single-threaded): a long-lived tree plus many short-lived trees of depth 4..D; 16-byte nodes, pointer-rich.
+
+*Notes:* Sized by tree depth, not bytes: this is an allocation-throughput benchmark with a small live heap.
+
+- **Implementations:** go: `binarytrees` in `go/memory/`, rust: `binarytrees` in `rust/memory/`
+- **Track:** `baseline`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `d16` (quick/standard/full); `d18` (standard/full); `d20` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥0 ms; measure ≥2 iters & ≥0 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run binarytrees --param depth=16 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run binarytrees --param depth=16 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn`
+
+Steady-state churn: a live set of boxed 64-byte objects (built in setup) while each run replaces as many random slots as there are objects with fresh ones.
+
+*Notes:* The GC-sensitive case: Go must repeatedly mark the whole live set; Rust frees each replaced object immediately.
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `baseline`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `100MiB` (quick/standard/full); `500MiB` (standard/full); `1GiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥0 ms; measure ≥2 iters & ≥0 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run churn --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run churn --param bytes=104857600 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.gogc50`
+
+mem.churn with a non-default configuration: Go GOGC=50 (smaller heap target, more GC cycles).
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **Environment:** go: `{'GOGC': '50'}`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.gogc200`
+
+mem.churn with a non-default configuration: Go GOGC=200 (larger heap target, fewer GC cycles).
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **Environment:** go: `{'GOGC': '200'}`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.gogcoff-limit1g`
+
+mem.churn with a non-default configuration: Go GOGC=off with GOMEMLIMIT=1GiB (GC only near the limit).
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **Environment:** go: `{'GOGC': 'off', 'GOMEMLIMIT': '1GiB'}`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.mimalloc`
+
+mem.churn with a non-default configuration: Rust built with mimalloc instead of glibc malloc.
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **Build flavor:** rust: `mimalloc`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust-mimalloc/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-boxed.mimalloc`
+
+mem.objects-boxed with a non-default configuration: Rust built with mimalloc instead of glibc malloc.
+
+- **Implementations:** go: `objects-boxed` in `go/memory/`, rust: `objects-boxed` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.objects-boxed`)
+- **Build flavor:** rust: `mimalloc`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust-mimalloc/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-boxed.gogc200`
+
+mem.objects-boxed with a non-default configuration: Go GOGC=200.
+
+- **Implementations:** go: `objects-boxed` in `go/memory/`, rust: `objects-boxed` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.objects-boxed`)
+- **Environment:** go: `{'GOGC': '200'}`
+- **CPU pinning:** `memory` → cores `2-3`
+- **Sizes:** `500MiB` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.objects-boxed.1core`
+
+mem.objects-boxed pinned to a single core (GOMAXPROCS=1): the GC cannot run on a spare core.
+
+- **Implementations:** go: `objects-boxed` in `go/memory/`, rust: `objects-boxed` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.objects-boxed`)
+- **CPU pinning:** `memory_1core` → cores `3`
+- **Sizes:** `500MiB` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/memory run objects-boxed --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+
+### `mem.churn.1core`
+
+mem.churn pinned to a single core (GOMAXPROCS=1): the GC cannot run on a spare core.
+
+- **Implementations:** go: `churn` in `go/memory/`, rust: `churn` in `rust/memory/`
+- **Track:** `tuned` (variant of `mem.churn`)
+- **CPU pinning:** `memory_1core` → cores `3`
+- **Sizes:** `500MiB` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥0 ms; measure ≥3 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥2 iters & ≥0 ms; measure ≥5 iters & ≥2000 ms
+- **Command (go):** `taskset -c 3 bin/go/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`
+- **Command (rust):** `taskset -c 3 bin/rust/memory run churn --param bytes=524288000 --warmup-iters 2 --warmup-min-ms 0 --iters 3 --min-ms 1000`

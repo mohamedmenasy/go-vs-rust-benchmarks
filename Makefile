@@ -25,7 +25,7 @@ CARGO := cargo
 BENCH := scripts/bench
 
 # Programs built for both languages (directory under go/ == Rust [[bin]] name).
-BINS := selftest cpu
+BINS := selftest cpu memory
 HARNESS_CATEGORIES := cpu memory json concurrency io strings collections
 SPECIAL_CATEGORIES := http startup binsize compile
 CATEGORIES := $(HARNESS_CATEGORIES) $(SPECIAL_CATEGORIES)

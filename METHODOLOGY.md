@@ -437,6 +437,34 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
   allocation counts and rates, and Go GC cycles, pauses and CPU share.
 - **Sensitivity track:** Go `GOGC` set to 50, 100, 200, and off with a
   `GOMEMLIMIT`; Rust glibc malloc vs mimalloc.
+- **What is timed.** Allocation, filling, reading and releasing are all
+  inside `run`.
+  - Rust frees at the end of `run` (`drop`).
+  - Go's garbage is reclaimed by GC cycles that the next iterations trigger.
+    Steady-state per-iteration time and the measured window's CPU time
+    therefore include GC work, including background mark workers on the
+    second core.
+- **Identical logical allocations.** Go's `MemStats.Mallocs` and Rust's
+  counting allocator report the *same* number of allocations per iteration.
+  For example, `objects-boxed` 100 MiB makes 1,638,401 allocations in both:
+  one per object plus the pointer slice. The differences come from how
+  allocations are served and reclaimed, not from how many there are.
+- **Zeroing.** Go's `make` zero-initializes by language definition; the Rust
+  `bytes` and `objects-inline` workloads build their vectors without
+  zeroing. For these sizes glibc uses `mmap`/`munmap` for every buffer, so
+  Rust pays page faults on every iteration. Go reuses its heap after GC and
+  pays for zeroing instead.
+- **Three RSS readings:**
+  1. `peak` (VmHWM over the process lifetime);
+  2. `end`: the natural state right after the last iteration, including
+     garbage Go has not yet collected;
+  3. `after_teardown`: after an explicit release (`runtime.GC()` +
+     `debug.FreeOSMemory()` in Go, `malloc_trim(0)` for glibc in Rust),
+     which shows how much memory each runtime can give back to the OS.
+- **`churn`.** Object contents depend only on the slot index, so the live set
+  is identical after every iteration and digests are reproducible.
+- **Single-core variants.** The `.1core` variants (full profile) pin
+  `GOMAXPROCS=1`, so Go's GC competes with the mutator for the only core.
 
 ### 13.3 JSON (single core)
 

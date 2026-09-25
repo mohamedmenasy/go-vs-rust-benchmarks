@@ -608,5 +608,38 @@
    "rows": 304,
    "digest": "da1e69325cd52905"
   }
+ },
+ "memory": {
+  "bytes": {
+   "words": 1000,
+   "seed": 5,
+   "run": "8627e1eed9c2bfc4"
+  },
+  "objects": {
+   "n": 1000,
+   "seed": 6,
+   "run": "000000000003c6f2"
+  },
+  "binarytrees": [
+   {
+    "depth": 4,
+    "run": "9bfa7ddc57d2eafb"
+   },
+   {
+    "depth": 6,
+    "run": "b9dafb4c32d7d9c2"
+   },
+   {
+    "depth": 10,
+    "run": "e2a58744c9c81a94"
+   }
+  ],
+  "churn": {
+   "n": 1000,
+   "replace": 1000,
+   "seed": 7,
+   "run": "000000000000bdce",
+   "check": "000000000000b310"
+  }
  }
 }

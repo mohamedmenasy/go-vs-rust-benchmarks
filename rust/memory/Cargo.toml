@@ -1,0 +1,18 @@
+[package]
+name = "bench-memory"
+description = "Allocation / memory workloads (mirror of go/memory)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "memory"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+bench-common.workspace = true
+libc.workspace = true

@@ -349,3 +349,201 @@ desc = "cpu.csvparse with Rust built using the release-tuned profile (fat LTO, c
 sizes = [
   { label = "100MiB", input = "csv/requests-100MiB.csv", profiles = ["standard", "full"] },
 ]
+
+# ===========================================================================
+# 2. Memory (2 cores so Go's concurrent GC has room; METHODOLOGY.md §13.2)
+#    Allocation, use and release are all inside the timed run.
+# ===========================================================================
+
+[[workload]]
+id = "mem.bytes"
+category = "memory"
+bin = "memory"
+impl = "bytes"
+cores = "memory"
+desc = "Allocate one contiguous buffer, fill it with SplitMix64 words, fold it, release it."
+notes = "Go's make() zero-initialises by language definition; the Rust version collects into a fresh Vec without zeroing. glibc serves these sizes with mmap/munmap per iteration; Go reuses its heap after GC."
+timing = { quick = { warmup_iters = 1, warmup_min_ms = 0, iters = 2, min_ms = 0 }, standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "100MiB", bytes = "100MiB", profiles = ["quick", "standard", "full"] },
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-boxed"
+category = "memory"
+bin = "memory"
+impl = "objects-boxed"
+cores = "memory"
+desc = "Allocate bytes/64 individually heap-allocated 64-byte objects held by a slice/Vec of pointers, read them, release them (Go: garbage for the GC; Rust: Box drops)."
+timing = { quick = { warmup_iters = 1, warmup_min_ms = 0, iters = 2, min_ms = 0 }, standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "100MiB", bytes = "100MiB", profiles = ["quick", "standard", "full"] },
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-inline"
+category = "memory"
+bin = "memory"
+impl = "objects-inline"
+cores = "memory"
+desc = "The same 64-byte objects stored by value in one slice/Vec: one allocation, contiguous layout."
+timing = { quick = { warmup_iters = 1, warmup_min_ms = 0, iters = 2, min_ms = 0 }, standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "100MiB", bytes = "100MiB", profiles = ["quick", "standard", "full"] },
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.binarytrees"
+category = "memory"
+bin = "memory"
+impl = "binarytrees"
+cores = "memory"
+desc = "Benchmarks Game binary-trees (single-threaded): a long-lived tree plus many short-lived trees of depth 4..D; 16-byte nodes, pointer-rich."
+notes = "Sized by tree depth, not bytes: this is an allocation-throughput benchmark with a small live heap."
+timing = { quick = { warmup_iters = 1, warmup_min_ms = 0, iters = 2, min_ms = 0 }, standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "d16", depth = 16, profiles = ["quick", "standard", "full"] },
+  { label = "d18", depth = 18, profiles = ["standard", "full"] },
+  { label = "d20", depth = 20, profiles = ["full"] },
+]
+
+[[workload]]
+id = "mem.churn"
+category = "memory"
+bin = "memory"
+impl = "churn"
+cores = "memory"
+desc = "Steady-state churn: a live set of boxed 64-byte objects (built in setup) while each run replaces as many random slots as there are objects with fresh ones."
+notes = "The GC-sensitive case: Go must repeatedly mark the whole live set; Rust frees each replaced object immediately."
+timing = { quick = { warmup_iters = 1, warmup_min_ms = 0, iters = 2, min_ms = 0 }, standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "100MiB", bytes = "100MiB", profiles = ["quick", "standard", "full"] },
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+  { label = "1GiB", bytes = "1GiB", profiles = ["standard", "full"] },
+]
+
+# --- memory sensitivity track (tuned): runtime / allocator configuration ---
+
+[[workload]]
+id = "mem.churn.gogc50"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+cores = "memory"
+env = { go = { GOGC = "50" } }
+desc = "mem.churn with a non-default configuration: Go GOGC=50 (smaller heap target, more GC cycles)."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.churn.gogc200"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+cores = "memory"
+env = { go = { GOGC = "200" } }
+desc = "mem.churn with a non-default configuration: Go GOGC=200 (larger heap target, fewer GC cycles)."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.churn.gogcoff-limit1g"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+cores = "memory"
+env = { go = { GOGC = "off", GOMEMLIMIT = "1GiB" } }
+desc = "mem.churn with a non-default configuration: Go GOGC=off with GOMEMLIMIT=1GiB (GC only near the limit)."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.churn.mimalloc"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+cores = "memory"
+flavor = { rust = "mimalloc" }
+desc = "mem.churn with a non-default configuration: Rust built with mimalloc instead of glibc malloc."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-boxed.mimalloc"
+category = "memory"
+bin = "memory"
+impl = "objects-boxed"
+track = "tuned"
+variant_of = "mem.objects-boxed"
+cores = "memory"
+flavor = { rust = "mimalloc" }
+desc = "mem.objects-boxed with a non-default configuration: Rust built with mimalloc instead of glibc malloc."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-boxed.gogc200"
+category = "memory"
+bin = "memory"
+impl = "objects-boxed"
+track = "tuned"
+variant_of = "mem.objects-boxed"
+cores = "memory"
+env = { go = { GOGC = "200" } }
+desc = "mem.objects-boxed with a non-default configuration: Go GOGC=200."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["standard", "full"] },
+]
+
+[[workload]]
+id = "mem.objects-boxed.1core"
+category = "memory"
+bin = "memory"
+impl = "objects-boxed"
+track = "tuned"
+variant_of = "mem.objects-boxed"
+cores = "memory_1core"
+desc = "mem.objects-boxed pinned to a single core (GOMAXPROCS=1): the GC cannot run on a spare core."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["full"] },
+]
+
+[[workload]]
+id = "mem.churn.1core"
+category = "memory"
+bin = "memory"
+impl = "churn"
+track = "tuned"
+variant_of = "mem.churn"
+cores = "memory_1core"
+desc = "mem.churn pinned to a single core (GOMAXPROCS=1): the GC cannot run on a spare core."
+timing = { standard = { warmup_iters = 2, warmup_min_ms = 0, iters = 3, min_ms = 1000 }, full = { warmup_iters = 2, warmup_min_ms = 0, iters = 5, min_ms = 2000 } }
+sizes = [
+  { label = "500MiB", bytes = "500MiB", profiles = ["full"] },
+]
