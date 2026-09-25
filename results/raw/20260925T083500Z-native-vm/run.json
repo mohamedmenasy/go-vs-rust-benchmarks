@@ -51,6 +51,16 @@
    "ids": null,
    "started_at": "2026-09-25T12:35:21+00:00",
    "finished_at": "2026-09-25T13:19:34+00:00"
+  },
+  {
+   "kind": "harness",
+   "profile": "standard",
+   "categories": [
+    "io"
+   ],
+   "ids": null,
+   "started_at": "2026-09-25T13:19:38+00:00",
+   "finished_at": "2026-09-25T13:38:24+00:00"
   }
  ],
  "profile": "standard"
