@@ -91,6 +91,15 @@
    "ids": null,
    "started_at": "2026-09-25T14:25:37+00:00",
    "finished_at": "2026-09-25T14:25:52+00:00"
+  },
+  {
+   "kind": "binsize",
+   "categories": [
+    "binsize"
+   ],
+   "profile": "standard",
+   "started_at": "2026-09-25T14:25:54+00:00",
+   "finished_at": "2026-09-25T14:26:00+00:00"
   }
  ],
  "profile": "standard"
