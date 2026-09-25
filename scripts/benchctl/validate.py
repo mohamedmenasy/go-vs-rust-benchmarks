@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from . import orchestrate
+from . import orchestrate, services
 from .spec import Spec
 from .util import log
 
@@ -44,6 +44,22 @@ def compare(results: dict[str, dict]) -> list[str]:
 
 def validate(spec: Spec, profile: str, categories: list[str] | None = None, ids: list[str] | None = None) -> bool:
     items = spec.select(profile, categories, ids, kinds={"harness"})
+    with services.for_workloads(spec, [w for w, _ in items]):
+        ok_all, rows = _validate_items(spec, items)
+    for cat, fn in EXTRA_VALIDATORS.items():
+        if categories and cat not in categories:
+            continue
+        if not any(w.category == cat for w in spec.workloads):
+            continue
+        if not fn(spec, profile):
+            ok_all = False
+    log(f"validation {'PASSED' if ok_all else 'FAILED'}: {sum(1 for r in rows if r[0] == 'OK')}/{len(rows)} "
+        "harness workload-sizes agree" + (" (+ category-specific checks above)" if not categories or
+                                          set(categories) & set(EXTRA_VALIDATORS) else ""))
+    return ok_all
+
+
+def _validate_items(spec: Spec, items) -> tuple[bool, list]:
     ok_all = True
     rows = []
     for w, size in items:
@@ -61,10 +77,4 @@ def validate(spec: Spec, profile: str, categories: list[str] | None = None, ids:
         checks = " ".join(f"{lang}={results[lang].get('checksum', '?')[:16]}" for lang in sorted(results))
         rows.append((status, w.id, size.label, checks, "; ".join(problems)))
         log(f"{status:<8} {w.id:<32} {size.label:<10} {checks} {'; '.join(problems)}", level="info" if not problems else "error")
-    for cat, fn in EXTRA_VALIDATORS.items():
-        if categories and cat not in categories:
-            continue
-        if not fn(spec, profile):
-            ok_all = False
-    log(f"validation {'PASSED' if ok_all else 'FAILED'}: {sum(1 for r in rows if r[0] == 'OK')}/{len(rows)} workload-sizes agree")
-    return ok_all
+    return ok_all, rows

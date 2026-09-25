@@ -89,5 +89,5 @@ image that contains both toolchains. Container results are stored with
 | Category | Status |
 |---|---|
 | Harness, orchestrator, statistics, datasets | done |
-| CPU, memory, JSON, HTTP | implemented |
-| Concurrency, file I/O, strings, collections, startup, binary size, compilation | planned |
+| CPU, memory, JSON, HTTP, concurrency | implemented |
+| File I/O, strings, collections, startup, binary size, compilation | planned |

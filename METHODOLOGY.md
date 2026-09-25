@@ -597,6 +597,34 @@ parameters live in `bench.toml` and `docs/BENCHMARKS.md`.
   - concurrent HTTP client requests against a neutral nginx server
 - **Task counts:** N = 10 … 100,000. HTTP client concurrency is capped at
   10,000 by the file-descriptor limit.
+- **Symmetric structure.**
+  - Go runs with `GOMAXPROCS=3`. The Rust side builds a multi-threaded Tokio
+    runtime with 3 workers during untimed setup.
+  - In both languages the coordinating logic of every workload runs inside a
+    spawned goroutine or task: Go's `inTask`, Rust's
+    `rt.block_on(tokio::spawn(f))`. It never runs on Rust's non-worker main
+    thread, where every channel operation would be a cross-thread wake-up.
+  - Entering the Tokio runtime from outside costs Rust roughly 20–50 µs per
+    iteration on this VM, because a sleeping worker must be woken. A Go
+    goroutine handoff stays on the same P.
+  - `spawn-join` therefore repeats small batches `reps` times inside one task,
+    so every iteration spawns about 100k tasks and measures in-runtime
+    spawn/join cost.
+- **Timers.** Tokio's timer wheel has 1 ms granularity; Go's timers are
+  nanosecond-precision. The `sleep` workload reports wake-lateness
+  percentiles for each run, and they differ partly for this reason.
+- **Memory per task.** This is (peak RSS − RSS after setup) ÷ N:
+  - goroutine stacks start at a few KiB and can grow;
+  - a Tokio task is a heap-allocated future sized to its state.
+- **HTTP client.** The server is nginx 1.24, with 2 workers on the nginx
+  cores serving a static 130-byte JSON body over keep-alive. The clients run
+  on the other two cores:
+  - Go: `net/http` with `MaxIdleConnsPerHost = N`;
+  - Rust: `reqwest` 0.13 without default features (plain HTTP/1.1 via hyper)
+    with `pool_max_idle_per_host = N`.
+
+  The validated result is total body bytes (requests × 130), and every
+  request must succeed.
 
 ### 13.6 File I/O (single core)
 

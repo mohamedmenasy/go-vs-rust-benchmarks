@@ -445,5 +445,31 @@ def json_section() -> dict:
     }
 
 
+# ----------------------------------------------------------------------------- concurrency
+
+def spin(seed: int, rounds: int) -> int:
+    x = seed
+    for _ in range(rounds):
+        x = R.mix64(x)
+    return x
+
+
+def conc_cpu_split(n: int, total: int) -> int:
+    base, rem = divmod(total, n)
+    return sum(spin(i, base + (1 if i < rem else 0)) for i in range(n)) & R.MASK64
+
+
+def concurrency_section() -> dict:
+    h = R.hexu64
+    return {
+        "spawn_join": [{"tasks": n, "run": h(sum(R.mix64(i) for i in range(n)) & R.MASK64)} for n in (1, 10, 1000)],
+        "cpu_split": [{"tasks": n, "rounds": 1000, "run": h(conc_cpu_split(n, 1000))} for n in (1, 7, 100)],
+        "pingpong": [{"msgs": m, "run": h(m * (m + 1) // 2)} for m in (1, 1000)],
+        "prodcons": [{"msgs": m, "run": h(m * (m - 1) // 2)} for m in (10, 100_000)],
+        "fanout": [{"jobs": j, "run": h(sum(spin(k, 100) for k in range(j)) & R.MASK64)} for j in (1, 1000)],
+    }
+
+
 def sections() -> dict:
-    return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section()}
+    return {"cpu": cpu_section(), "memory": memory_section(), "json": json_section(),
+            "concurrency": concurrency_section()}

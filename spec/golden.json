@@ -659,5 +659,68 @@
    "typed_digest": "4850f1382df9e50a",
    "dynamic_digest": "67cf293a5d5b7338"
   }
+ },
+ "concurrency": {
+  "spawn_join": [
+   {
+    "tasks": 1,
+    "run": "0000000000000000"
+   },
+   {
+    "tasks": 10,
+    "run": "fb18424268b4c98e"
+   },
+   {
+    "tasks": 1000,
+    "run": "fd587117989f0251"
+   }
+  ],
+  "cpu_split": [
+   {
+    "tasks": 1,
+    "rounds": 1000,
+    "run": "0000000000000000"
+   },
+   {
+    "tasks": 7,
+    "rounds": 1000,
+    "run": "76317c1c3e35463b"
+   },
+   {
+    "tasks": 100,
+    "rounds": 1000,
+    "run": "1a4ad70d86c7d97c"
+   }
+  ],
+  "pingpong": [
+   {
+    "msgs": 1,
+    "run": "0000000000000001"
+   },
+   {
+    "msgs": 1000,
+    "run": "000000000007a314"
+   }
+  ],
+  "prodcons": [
+   {
+    "msgs": 10,
+    "run": "000000000000002d"
+   },
+   {
+    "msgs": 100000,
+    "run": "000000012a052eb0"
+   }
+  ],
+  "fanout": [
+   {
+    "jobs": 1,
+    "run": "0000000000000000"
+   },
+   {
+    "jobs": 1000,
+    "run": "c159baf04bb65ba0"
+   }
+  ]
  }
 }

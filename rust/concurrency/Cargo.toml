@@ -1,0 +1,20 @@
+[package]
+name = "bench-concurrency"
+description = "Tokio tasks + async channels (mirror of go/concurrency)."
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "concurrency"
+path = "src/main.rs"
+
+[features]
+alloc-stats = ["bench-common/alloc-stats"]
+mimalloc = ["bench-common/mimalloc"]
+
+[dependencies]
+async-channel.workspace = true
+bench-common.workspace = true
+reqwest.workspace = true
+tokio.workspace = true

@@ -11,7 +11,7 @@ import statistics
 import time
 from pathlib import Path
 
-from . import builds, envinfo, runner
+from . import builds, envinfo, runner, services
 from .spec import Size, Spec, Workload
 from .util import RAW_DIR, human_bytes, human_ns, log, now_iso, parse_cpuset, read_json, write_json
 
@@ -149,9 +149,28 @@ def run_harness(
     checksums: dict[tuple[str, str], set[str]] = {}
     total_rounds = {id(w): rounds_override or spec.rounds_for(profile, w) for w, _ in items}
     max_rounds = max(total_rounds.values(), default=0)
-    n_done = 0
     n_total = sum(total_rounds[id(w)] * len(w.langs) for w, _ in items)
     t0 = time.monotonic()
+    with services.for_workloads(spec, [w for w, _ in items]):
+        _rounds_and_alloc_pass(spec, profile, run_id, mode, items, total_rounds, max_rounds, base, rng, checksums,
+                               n_total, t0, resume, alloc_pass)
+    _record_invocation(
+        base,
+        {
+            "kind": "harness",
+            "profile": profile,
+            "categories": categories,
+            "ids": ids,
+            "started_at": started,
+            "finished_at": now_iso(),
+        },
+    )
+    return base
+
+
+def _rounds_and_alloc_pass(spec, profile, run_id, mode, items, total_rounds, max_rounds, base, rng, checksums,
+                           n_total, t0, resume, alloc_pass) -> None:
+    n_done = 0
     for r in range(max_rounds):
         for w, size in items:
             if r >= total_rounds[id(w)]:
@@ -222,15 +241,3 @@ def run_harness(
             )
             write_json(path, rec)
             log(f"[alloc-profile] {w.id} {size.label} rust {_summary_line(rec)}")
-    _record_invocation(
-        base,
-        {
-            "kind": "harness",
-            "profile": profile,
-            "categories": categories,
-            "ids": ids,
-            "started_at": started,
-            "finished_at": now_iso(),
-        },
-    )
-    return base

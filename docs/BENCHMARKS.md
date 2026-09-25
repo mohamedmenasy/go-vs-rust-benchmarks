@@ -697,3 +697,111 @@ The same endpoint on the popular third-party frameworks: Go Gin 1.12 (on net/htt
 - **CPU pinning:** `http_server` → cores `2-3`
 - **Sizes:** `suite` (quick/standard/full)
 - **Driver:** `scripts/benchctl` category `http` (see METHODOLOGY.md)
+
+## 5. Concurrency
+
+### `conc.spawn-join`
+
+Spawn N goroutines / Tokio tasks that each compute one value, then join them all: task creation + scheduling + join cost. Small N is repeated `reps` times inside one task so every run spawns ~100k tasks.
+
+- **Implementations:** go: `spawn-join` in `go/concurrency/`, rust: `spawn-join` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `n10` (quick/standard/full); `n100` (standard/full); `n1k` (quick/standard/full); `n10k` (standard/full); `n100k` (quick/standard/full); `n1M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run spawn-join --param tasks=10 --param reps=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run spawn-join --param tasks=10 --param reps=10000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.sleep`
+
+N tasks each sleep 10 ms (time.Sleep vs tokio::time::sleep) and report how late they woke: memory per waiting task and timer/scheduler behaviour.
+
+*Notes:* Tokio's timer wheel has 1 ms resolution; Go timers are nanosecond-precision. Wake lateness percentiles are reported per run.
+
+- **Implementations:** go: `sleep` in `go/concurrency/`, rust: `sleep` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `n10` (quick/standard/full); `n100` (standard/full); `n1k` (quick/standard/full); `n10k` (standard/full); `n100k` (quick/standard/full); `n1M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run sleep --param tasks=10 --param sleep_ms=10 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run sleep --param tasks=10 --param sleep_ms=10 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.cpu-split`
+
+A fixed 2^25 mixing rounds of CPU work split evenly across N tasks: total work constant, scheduling granularity varies.
+
+*Notes:* Rust uses tokio::spawn for CPU-bound tasks (like goroutines); Tokio schedules cooperatively while Go can preempt.
+
+- **Implementations:** go: `cpu-split` in `go/concurrency/`, rust: `cpu-split` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `n10` (quick/standard/full); `n100` (standard/full); `n1k` (quick/standard/full); `n10k` (standard/full); `n100k` (quick/standard/full); `n1M` (full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run cpu-split --param tasks=10 --param rounds=33554432 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run cpu-split --param tasks=10 --param rounds=33554432 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.pingpong`
+
+Two tasks bounce a counter over two capacity-1 channels (Go chan vs tokio::sync::mpsc): message-passing round-trip latency.
+
+- **Implementations:** go: `pingpong` in `go/concurrency/`, rust: `pingpong` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `100k` (quick); `1M` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run pingpong --param msgs=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run pingpong --param msgs=1000000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.prodcons`
+
+P producers send disjoint integer ranges through one bounded channel (capacity 1024) to C consumers that sum them.
+
+*Notes:* Go channels are MPMC for every topology; Rust uses tokio::sync::mpsc for one consumer and async-channel (MPMC) for several.
+
+- **Implementations:** go: `prodcons` in `go/concurrency/`, rust: `prodcons` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `1p1c` (quick/standard/full); `4p1c` (standard/full); `1p4c` (standard/full); `4p4c` (quick/standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run prodcons --param producers=1 --param consumers=1 --param msgs=1000000 --param cap=1024 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run prodcons --param producers=1 --param consumers=1 --param msgs=1000000 --param cap=1024 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.fanout`
+
+Fan-out/fan-in: a dispatcher sends 200k jobs to N workers over a bounded channel; workers do 100 mixing rounds per job and send results to one collector.
+
+- **Implementations:** go: `fanout` in `go/concurrency/`, rust: `fanout` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `concurrency` → cores `1-3`
+- **Sizes:** `n10` (quick/standard/full); `n100` (standard/full); `n1k` (quick/standard/full); `n10k` (standard/full); `n100k` (quick/standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 1-3 bin/go/concurrency run fanout --param tasks=10 --param jobs=200000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 1-3 bin/rust/concurrency run fanout --param tasks=10 --param jobs=200000 --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+
+### `conc.http-client`
+
+N concurrent tasks issue 100k GET requests in total (keep-alive pool of N connections) to a neutral nginx server on separate cores: Go net/http client vs Rust reqwest.
+
+*Notes:* nginx (neither language) serves a static 130-byte JSON body on the nginx cores; concurrency capped at 10,000 by the file-descriptor limit.
+
+- **Implementations:** go: `http-client` in `go/concurrency/`, rust: `http-client` in `rust/concurrency/`
+- **Track:** `baseline`
+- **CPU pinning:** `http_client` → cores `2-3`
+- **Sizes:** `n10` (quick/standard/full); `n100` (quick/standard/full); `n1k` (standard/full); `n10k` (standard/full)
+- **quick:** 3 rounds; warmup ≥1 iters & ≥100 ms; measure ≥3 iters & ≥300 ms
+- **standard:** 10 rounds; warmup ≥2 iters & ≥500 ms; measure ≥5 iters & ≥1000 ms
+- **full:** 20 rounds; warmup ≥3 iters & ≥1000 ms; measure ≥10 iters & ≥2000 ms
+- **Command (go):** `taskset -c 2-3 bin/go/concurrency run http-client --param conns=10 --param requests=100000 --param url=http://127.0.0.1:18090/user --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
+- **Command (rust):** `taskset -c 2-3 bin/rust/concurrency run http-client --param conns=10 --param requests=100000 --param url=http://127.0.0.1:18090/user --warmup-iters 2 --warmup-min-ms 500 --iters 5 --min-ms 1000`
